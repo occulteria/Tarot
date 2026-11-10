@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Тренажёр «Переключение внимания». Раскачка восприятия. Occulteria</title>
+<style>
+:root{--light:#F3EDE5;--dark:#161616;--acc:#DF481A;--mid:#8a8378;--line:#d9d0c4;--paper:#fff9f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:var(--dark);font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.45}
+body{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:normal;font-size:40px;line-height:1.05;margin:10px 0 8px}
+h1 span{color:var(--acc)}
+h2{font-weight:normal;font-size:30px;margin:4px 0 12px}
+p{margin:0 0 10px}
+.lead{font-size:19px;max-width:640px}
+.note{font-size:15px;color:#4a463f}
+.rule{height:1px;background:var(--dark);margin:24px 0}
+.list{border-top:1px solid var(--dark);margin-top:22px}
+.item{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;width:100%;background:none;border:none;border-bottom:1px solid var(--dark);padding:18px 4px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.item:hover,.item:active{background:#ebe3d8}
+.item .num{font-size:40px;line-height:1;color:var(--acc)}
+.item .t{font-size:22px;line-height:1.15}
+.item .d{font-size:15px;color:#4a463f;margin-top:4px}
+.item .go{font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid)}
+.back{background:none;border:none;font:inherit;font-size:13px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid);cursor:pointer;padding:6px 0;margin-bottom:10px}
+.back:hover{color:var(--acc)}
+.panel{display:none}.panel.on{display:block}
+.btn{display:inline-block;background:var(--dark);color:var(--light);border:none;padding:13px 24px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;margin:4px 8px 4px 0}
+.rulebox{border:1px solid var(--dark);background:var(--paper);padding:12px 16px;margin:10px 0 14px;font-size:17px}
+.rulebox b{color:var(--acc);font-weight:normal;letter-spacing:.05em}
+.stage{position:relative;background:var(--dark);color:var(--light);margin:14px 0;height:66vh;min-height:400px;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow:hidden}
+.stage .hud{position:absolute;top:12px;left:14px;right:110px;display:flex;justify-content:space-between;font-size:14px;letter-spacing:.2em;color:#8a847b;pointer-events:none;z-index:2}
+.stop{position:absolute;top:8px;right:10px;background:none;color:#8a847b;border:1px solid #4a463f;font:inherit;font-size:13px;letter-spacing:.1em;padding:6px 12px;cursor:pointer;z-index:3}
+.full{position:fixed!important;inset:0;margin:0!important;z-index:50;height:100%!important}
+.hide{display:none!important}
+.stim{position:absolute;left:0;right:0;top:44px;bottom:110px;display:flex;align-items:center;justify-content:center}
+.answers{position:absolute;left:12px;right:12px;bottom:14px;display:grid;gap:8px}
+.answers button{background:#262422;color:var(--light);border:1px solid #4a463f;font:inherit;font-size:18px;line-height:1.2;padding:16px 6px;cursor:pointer;min-height:76px}
+.answers button:active{background:#3a3733}
+.answers button small{display:block;font-size:14px;color:#a8a197;margin-top:3px}
+.errflash{position:absolute;inset:0;border:4px solid var(--acc);opacity:0;pointer-events:none;transition:opacity .35s}
+/* задание 1 */
+.halves{position:absolute;inset:0;display:grid;grid-template-rows:1fr 1fr}
+.halves div{display:flex;align-items:center;justify-content:center;font-size:clamp(56px,16vw,110px);position:relative}
+.halves div+div{border-top:1px solid #4a463f}
+.halves span.tag{position:absolute;left:12px;top:8px;font-size:12px;letter-spacing:.2em;color:#6d675f;text-transform:uppercase}
+/* задание 2 */
+.cue{position:absolute;top:6px;left:0;right:0;text-align:center;font-size:15px;letter-spacing:.35em;color:var(--light)}
+.shape{width:120px;height:120px}
+/* навон */
+.navon{display:grid;grid-template-columns:repeat(5,1fr);gap:0;font-size:clamp(20px,6vw,40px);line-height:1;text-align:center;width:min(70vw,300px)}
+.navon span{display:block;height:1.15em}
+/* дорожка */
+.trail{position:relative;background:var(--paper);border:1px solid var(--dark);height:62vh;min-height:380px;margin:14px 0;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.trail button{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:1.5px solid var(--dark);background:#fff;font:inherit;font-size:19px;cursor:pointer;color:var(--dark);padding:0}
+.trail button.done{background:var(--dark);color:var(--light)}
+.trail button.err{animation:err .35s}
+.trail svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+@keyframes err{0%{background:var(--acc)}100%{background:#fff}}
+.next{font-size:16px;color:var(--mid);letter-spacing:.15em;min-height:24px}
+.res{border-left:3px solid var(--acc);padding:6px 0 6px 16px;margin:16px 0;display:none}
+.res.on{display:block}
+.res .big{font-size:30px;line-height:1.1;margin-bottom:6px}
+.res .sm{font-size:15px;color:#4a463f;margin-top:8px}
+.scale{display:flex;margin:10px 0 4px;max-width:420px}
+.scale div{flex:1;text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:8px 4px;border:1px solid var(--dark);color:var(--mid)}
+.scale div+div{border-left:none}
+.scale div.on{background:var(--dark);color:var(--light)}
+.scale div.on.hi{background:var(--acc);border-color:var(--acc)}
+@media(max-width:600px){h1{font-size:31px}.wrap{padding:20px 14px 50px}.item{grid-template-columns:48px 1fr}.item .num{font-size:32px}.item .go{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Occulteria · Раскачка восприятия · Тренажёр 2</div>
+
+<section class="panel on" id="home">
+  <h1>Переключение <span>внимания</span></h1>
+  <p class="lead">Пять упражнений на быстрый и чистый переход от одной задачи к другой. В каждом правило меняется прямо по ходу работы, и ваша задача успевать за ним. Выберите любое упражнение.</p>
+  <div class="list">
+    <button class="item" data-p="p1"><span class="num">01</span><span><div class="t">Верх и низ</div><div class="d">Цифра вверху: чётная или нечётная. Цифра внизу: больше или меньше пяти. 40 карточек</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p2"><span class="num">02</span><span><div class="t">Цвет или форма</div><div class="d">Подсказка говорит, что оценивать: цвет фигуры или её форму. 40 карточек</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p3"><span class="num">03</span><span><div class="t">Прямо и наоборот</div><div class="d">Белая стрелка: жмите туда, куда она смотрит. Оранжевая: в обратную сторону. 40 карточек</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p4"><span class="num">04</span><span><div class="t">Большая и малая буква</div><div class="d">Большая буква сложена из маленьких. Назовите ту, которую просит подсказка. 30 карточек</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p5"><span class="num">05</span><span><div class="t">Дорожка</div><div class="d">Соединить по очереди цифры и буквы: 1, А, 2, Б, 3, В и так до Н и 13</div></span><span class="go">Выбрать</span></button>
+  </div>
+  <div class="rule"></div>
+  <p class="note">Перед занятием сядьте удобно и сделайте короткое заземление: столб от основания позвоночника в землю, корни от стоп. Если появилась тяжесть в голове или устали глаза, остановитесь, опустите внимание к стопам и продолжите в другой раз.</p>
+  <p class="note">Главный показатель здесь «цена переключения»: на сколько вы медленнее, когда правило сменилось, по сравнению с моментом, когда оно повторилось. Чем она меньше, тем свободнее ваше внимание переходит с задачи на задачу. Уровень «слабый, средний, высокий» дан как ориентир для взрослого человека. Сравнивайте себя прежде всего со своими прошлыми попытками.</p>
+</section>
+
+<section class="panel" id="p1">
+  <button class="back">← Все упражнения</button>
+  <h2>Верх и низ</h2>
+  <p>Экран разделён на две половины. Цифра появляется то в верхней, то в нижней. Правило зависит от того, где она стоит.</p>
+  <div class="rulebox"><b>Вверху:</b> чётная или нечётная.<br><b>Внизу:</b> меньше пяти или больше пяти.</div>
+  <p class="note">Левая кнопка: «чётная» или «меньше 5». Правая кнопка: «нечётная» или «больше 5». На компьютере можно нажимать стрелки ← и →. Отвечайте быстро, но без спешки ради спешки: ошибки тоже считаются.</p>
+  <button class="btn start">Начать</button>
+  <div class="stage hide"><div class="hud"><span class="left"></span><span></span></div><button class="stop">Завершить</button><div class="stim"></div><div class="answers"></div><div class="errflash"></div></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p2">
+  <button class="back">← Все упражнения</button>
+  <h2>Цвет или форма</h2>
+  <p>На экране фигура: круг или квадрат, синего или оранжевого цвета. Сверху слово-подсказка говорит, что сейчас оценивать.</p>
+  <div class="rulebox"><b>ФОРМА:</b> круг или квадрат.<br><b>ЦВЕТ:</b> синий или оранжевый.</div>
+  <p class="note">Левая кнопка: «круг» или «синий». Правая кнопка: «квадрат» или «оранжевый». На компьютере можно нажимать стрелки ← и →.</p>
+  <button class="btn start">Начать</button>
+  <div class="stage hide"><div class="hud"><span class="left"></span><span></span></div><button class="stop">Завершить</button><div class="stim"></div><div class="answers"></div><div class="errflash"></div></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p3">
+  <button class="back">← Все упражнения</button>
+  <h2>Прямо и наоборот</h2>
+  <p>На экране стрелка влево или вправо. Её цвет говорит, как отвечать.</p>
+  <div class="rulebox"><b>Белая стрелка:</b> нажмите в ту сторону, куда она смотрит.<br><b>Оранжевая стрелка:</b> нажмите в обратную сторону.</div>
+  <p class="note">На компьютере можно нажимать стрелки ← и → на клавиатуре.</p>
+  <button class="btn start">Начать</button>
+  <div class="stage hide"><div class="hud"><span class="left"></span><span></span></div><button class="stop">Завершить</button><div class="stim"></div><div class="answers"></div><div class="errflash"></div></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p4">
+  <button class="back">← Все упражнения</button>
+  <h2>Большая и малая буква</h2>
+  <p>На экране большая буква, сложенная из маленьких букв другого вида. Подсказка сверху говорит, какую назвать.</p>
+  <div class="rulebox"><b>БОЛЬШАЯ:</b> буква, которую образует вся фигура целиком.<br><b>МАЛАЯ:</b> буква, из которой фигура сложена.</div>
+  <p class="note">Это упражнение тренирует тот же переход, что и Аудио 3: от широкого внимания, которое видит целое, к узкому, которое видит деталь.</p>
+  <button class="btn start">Начать</button>
+  <div class="stage hide"><div class="hud"><span class="left"></span><span></span></div><button class="stop">Завершить</button><div class="stim"></div><div class="answers"></div><div class="errflash"></div></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p5">
+  <button class="back">← Все упражнения</button>
+  <h2>Дорожка</h2>
+  <p>На поле разбросаны кружки с цифрами от 1 до 13 и буквами от А до Н. Нажимайте их по очереди, чередуя цифру и букву: 1, А, 2, Б, 3, В, 4, Г и так до 12, Н, 13. Между нажатыми кружками протянется линия.</p>
+  <p class="note">Буквы идут по алфавиту, но без Ё, З и Й, чтобы З не путалась с цифрой 3: А Б В Г Д Е Ж И К Л М Н. Время пошло с первого нажатия на «Начать».</p>
+  <button class="btn start">Начать</button>
+  <div class="next"></div>
+  <div class="trail hide"><svg></svg></div>
+  <div class="res"></div>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const q=(p,s)=>$(p).querySelector(s);
+const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const d1=s=>(Math.round(s*10)/10).toString().replace('.',',');
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function scale(lv){const n=['Слабый','Средний','Высокий'];return '<div class="scale">'+n.map((t,i)=>`<div class="${i===lv?'on'+(i===2?' hi':''):''}">${t}</div>`).join('')+'</div>'}
+function showRes(p,big,lv,sm){const e=q(p,'.res');e.innerHTML=`<div class="big">${big}</div>${scale(lv)}<div class="sm">${sm}</div>`;e.classList.add('on')}
+function hideRes(p){q(p,'.res').classList.remove('on')}
+function full(el,on){el.classList.toggle('full',on);document.body.style.overflow=on?'hidden':''}
+let stopActive=null,keyHandler=null;
+function show(id){if(stopActive)stopActive();document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===id));window.scrollTo(0,0)}
+document.querySelectorAll('.item').forEach(b=>b.onclick=()=>show(b.dataset.p));
+document.querySelectorAll('.back').forEach(b=>b.onclick=()=>show('home'));
+document.addEventListener('keydown',e=>{if(keyHandler){if(e.key==='ArrowLeft'){e.preventDefault();keyHandler(0)}else if(e.key==='ArrowRight'){e.preventDefault();keyHandler(1)}}});
+
+// общий движок задач с переключением
+function switchTask(P,cfg){
+  const st=q(P,'.stage'),stim=q(P,'.stim'),ans=q(P,'.answers'),ef=q(P,'.errflash');
+  let trials,i,shown,rec,running=false,lock=true,t0;
+  ans.style.gridTemplateColumns=`repeat(${cfg.buttons.length},1fr)`;
+  cfg.buttons.forEach((h,k)=>{const b=document.createElement('button');b.innerHTML=h;b.onclick=()=>answer(k);ans.appendChild(b)});
+  function next(){if(i>=trials.length)return end(true);const tr=trials[i];stim.innerHTML='';cfg.render(stim,tr);q(P,'.left').textContent=(i+1)+' / '+trials.length;shown=performance.now();lock=false}
+  function answer(k){if(!running||lock)return;lock=true;const tr=trials[i],ok=k===tr.ans,rt=performance.now()-shown;
+    rec.push({ok,rt,sw:tr.sw});if(!ok){ef.style.transition='none';ef.style.opacity=1;requestAnimationFrame(()=>requestAnimationFrame(()=>{ef.style.transition='opacity .35s';ef.style.opacity=0}))}
+    i++;stim.innerHTML='';setTimeout(next,ok?250:450)}
+  function end(done){if(!running)return;running=false;keyHandler=null;stopActive=null;full(st,false);st.classList.add('hide');q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Заново';
+    if(!done||rec.length<10){hideRes(P);return}
+    const ok=rec.filter(r=>r.ok),errs=rec.length-ok.length,avg=ok.reduce((s,r)=>s+r.rt,0)/Math.max(1,ok.length);
+    const sw=ok.filter(r=>r.sw===true),rp=ok.filter(r=>r.sw===false);
+    const m=a=>a.reduce((s,r)=>s+r.rt,0)/Math.max(1,a.length);
+    const cost=(sw.length&&rp.length)?Math.round(m(sw)-m(rp)):null;
+    const [hiRT,midRT]=cfg.rt||[1100,1600];
+    let lv=(errs<=2&&avg<hiRT)?2:(errs<=5&&avg<midRT)?1:0;
+    if(cost!==null&&cost>400)lv=Math.max(0,lv-1);
+    showRes(P,`${Math.round(avg)} мс на карточку`,lv,
+      `Ошибок: ${errs} из ${rec.length}. Цена переключения: ${cost===null?'нет данных':cost+' мс'}${cost!==null?(cost<=0?' (смена правила вас не замедляет)':' (на столько вы медленнее, когда правило сменилось)'):''}. Всё упражнение заняло ${fmt((performance.now()-t0)/1000)}. Ориентир: высокий уровень, когда в среднем уходит меньше ${d1(hiRT/1000)} с на карточку и ошибок не больше двух; средний до ${d1(midRT/1000)} с и не больше пяти ошибок. Цена переключения больше 400 мс снижает уровень на одну ступень.`)}
+  q(P,'.start').onclick=()=>{hideRes(P);trials=cfg.make();i=0;rec=[];q(P,'.start').classList.add('hide');st.classList.remove('hide');full(st,true);running=true;
+    keyHandler=cfg.buttons.length===2?answer:null;stopActive=()=>end(false);t0=performance.now();stim.innerHTML='';setTimeout(next,600)};
+  q(P,'.stop').onclick=()=>end(false);
+}
+// последовательность правил: смена примерно в половине случаев
+function ruleSeq(n){const a=[];let r=Math.random()<.5?0:1;for(let k=0;k<n;k++){if(k>0&&Math.random()<.5)r=1-r;a.push({rule:r,sw:k===0?null:(r!==a[k-1].rule)})}return a}
+
+// 1 ВЕРХ И НИЗ
+switchTask('p1',{buttons:['Чётная<small>меньше 5</small>','Нечётная<small>больше 5</small>'],
+  make(){return ruleSeq(40).map(t=>{const d=pick([1,2,3,4,6,7,8,9]);t.d=d;t.ans=t.rule===0?(d%2===0?0:1):(d<5?0:1);return t})},
+  render(el,t){el.innerHTML=`<div class="halves"><div><span class="tag">чётная или нечётная</span>${t.rule===0?t.d:''}</div><div><span class="tag">меньше или больше 5</span>${t.rule===1?t.d:''}</div></div>`;el.style.top='44px';el.style.bottom='110px'}});
+
+// 2 ЦВЕТ ИЛИ ФОРМА
+switchTask('p2',{buttons:['Круг<small>синий</small>','Квадрат<small>оранжевый</small>'],
+  make(){return ruleSeq(40).map(t=>{t.sh=Math.random()<.5?0:1;t.col=Math.random()<.5?0:1;t.ans=t.rule===0?t.sh:t.col;return t})},
+  render(el,t){const c=t.col===0?'#3d6fe0':'#DF481A';const s=t.sh===0?`<circle cx="60" cy="60" r="54" fill="${c}"/>`:`<rect x="8" y="8" width="104" height="104" fill="${c}"/>`;
+    el.innerHTML=`<div class="cue">${t.rule===0?'ФОРМА':'ЦВЕТ'}</div><svg class="shape" viewBox="0 0 120 120">${s}</svg>`}});
+
+// 3 ПРЯМО И НАОБОРОТ
+switchTask('p3',{buttons:['←','→'],rt:[900,1400],
+  make(){return ruleSeq(40).map(t=>{t.dir=Math.random()<.5?0:1;t.ans=t.rule===0?t.dir:1-t.dir;return t})},
+  render(el,t){const c=t.rule===0?'#F3EDE5':'#DF481A';const path=t.dir===0?'M150 20 L40 70 L150 120 L150 92 L260 92 L260 48 L150 48 Z':'M150 20 L260 70 L150 120 L150 92 L40 92 L40 48 L150 48 Z';
+    el.innerHTML=`<svg viewBox="0 0 300 140" style="width:min(70vw,300px)"><path d="${path}" fill="${c}"/></svg>`}});
+q('p3','.answers').querySelectorAll('button').forEach(b=>b.style.fontSize='34px');
+
+// 4 БОЛЬШАЯ И МАЛАЯ
+const BM={'Н':['X...X','X...X','XXXXX','X...X','X...X'],'Т':['XXXXX','..X..','..X..','..X..','..X..'],'П':['XXXXX','X...X','X...X','X...X','X...X'],'Е':['XXXXX','X....','XXXX.','X....','XXXXX']};
+const LET=Object.keys(BM);
+switchTask('p4',{buttons:LET,rt:[1300,1900],
+  make(){return ruleSeq(30).map(t=>{t.big=pick(LET);do{t.small=pick(LET)}while(t.small===t.big);t.ans=LET.indexOf(t.rule===0?t.big:t.small);return t})},
+  render(el,t){let h='';BM[t.big].forEach(r=>{for(const ch of r)h+=`<span>${ch==='X'?t.small:''}</span>`});
+    el.innerHTML=`<div class="cue">${t.rule===0?'БОЛЬШАЯ':'МАЛАЯ'}</div><div class="navon">${h}</div>`}});
+q('p4','.answers').querySelectorAll('button').forEach(b=>b.style.fontSize='26px');
+
+// 5 ДОРОЖКА
+(function(){
+  const P='p5',F=q(P,'.trail'),svg=q(P,'svg');  let seq,pos,t0,errs,pts,running=false;
+  q(P,'.start').onclick=()=>{hideRes(P);F.classList.remove('hide');F.querySelectorAll('button').forEach(b=>b.remove());svg.innerHTML='';
+    seq=[];const letters='АБВГДЕЖИКЛМН'.split('');for(let k=1;k<=13;k++){seq.push(String(k));if(k<=12)seq.push(letters[k-1])}
+    const W=F.clientWidth,H=F.clientHeight;pts=[];
+    const cols=W>=600?7:5,rows=Math.ceil(30/cols)+(W>=600?0:1);const cw=W/cols,ch=H/rows;const cells=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)cells.push([c,r]);
+    for(let k=cells.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[cells[k],cells[j]]=[cells[j],cells[k]]}
+    seq.forEach((lbl,k)=>{const [c,r]=cells[k];const jx=Math.max(0,cw/2-27),jy=Math.max(0,ch/2-27);const x=(c+.5)*cw+rnd(-jx,jx),y=(r+.5)*ch+rnd(-jy,jy);
+      const b=document.createElement('button');b.textContent=lbl;b.style.left=x+'px';b.style.top=y+'px';b.onclick=()=>hit(b,lbl,x,y);F.appendChild(b)});
+    pos=0;errs=0;t0=performance.now();running=true;stopActive=()=>{running=false;stopActive=null};q(P,'.start').textContent='Заново';q(P,'.next').textContent='Начните с 1'};
+  function hit(b,lbl,x,y){if(!running||b.classList.contains('done'))return;
+    if(lbl===seq[pos]){b.classList.add('done');if(pts.length){const p=pts[pts.length-1];svg.insertAdjacentHTML('beforeend',`<line x1="${p[0]}" y1="${p[1]}" x2="${x}" y2="${y}" stroke="#161616" stroke-width="1.5"/>`)}pts.push([x,y]);pos++;
+      q(P,'.next').textContent=pos<seq.length?`Пройдено ${pos} из ${seq.length}`:'';if(pos===seq.length)finish()}
+    else{errs++;b.classList.remove('err');void b.offsetWidth;b.classList.add('err')}}
+  function finish(){running=false;stopActive=null;pts=[];const s=(performance.now()-t0)/1000;let lv=s<=45?2:s<=75?1:0;if(errs>3)lv=Math.max(0,lv-1);
+    showRes(P,`${d1(s)} с`,lv,`Ошибочных нажатий: ${errs}. Ориентир: до 45 секунд высокий уровень, до 75 средний, дольше слабый. Больше трёх ошибок снижают уровень на одну ступень.`)}
+})();
+})();
+</script>
+</body>
+</html>
