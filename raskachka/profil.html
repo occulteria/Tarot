@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Тренажёр «Профиль восприятия». Раскачка восприятия. Occulteria</title>
+<style>
+:root{--light:#F3EDE5;--dark:#161616;--acc:#DF481A;--mid:#8a8378;--line:#d9d0c4;--paper:#fff9f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:var(--dark);font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.45}
+body{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:normal;font-size:40px;line-height:1.05;margin:10px 0 8px}
+h1 span{color:var(--acc)}
+h2{font-weight:normal;font-size:30px;margin:4px 0 12px}
+h3{font-weight:normal;font-size:13px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid);margin:24px 0 8px}
+p{margin:0 0 10px}
+.lead{font-size:19px;max-width:640px}
+.note{font-size:15px;color:#4a463f}
+.rule{height:1px;background:var(--dark);margin:24px 0}
+.list{border-top:1px solid var(--dark);margin-top:22px}
+.item{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;width:100%;background:none;border:none;border-bottom:1px solid var(--dark);padding:18px 4px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.item:hover,.item:active{background:#ebe3d8}
+.item .num{font-size:40px;line-height:1;color:var(--acc)}
+.item .t{font-size:22px;line-height:1.15}
+.item .d{font-size:15px;color:#4a463f;margin-top:4px}
+.item .go{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--mid);text-align:right}
+.item .go.done{color:var(--acc)}
+.back{background:none;border:none;font:inherit;font-size:13px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid);cursor:pointer;padding:6px 0;margin-bottom:10px}
+.back:hover{color:var(--acc)}
+.panel{display:none}.panel.on{display:block}
+.btn{display:inline-block;background:var(--dark);color:var(--light);border:none;padding:13px 24px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;margin:4px 8px 4px 0}
+.btn.ghost{background:none;color:var(--dark);border:1px solid var(--dark)}
+.hide{display:none!important}
+.status{font-size:16px;color:var(--mid);letter-spacing:.12em;min-height:26px;margin:8px 0}
+.status b{color:var(--acc);font-weight:normal}
+/* опросник */
+.qs .qq{border-top:1px solid var(--line);padding:14px 0}
+.qs .qq .qt{font-size:18px;margin-bottom:8px}
+.qs .qq .qt i{font-style:normal;color:var(--mid);font-size:13px;letter-spacing:.2em;text-transform:uppercase;display:block;margin-bottom:2px}
+.sc{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.sc button{background:var(--paper);border:1px solid var(--dark);font:inherit;font-size:13px;line-height:1.15;padding:9px 2px;cursor:pointer;color:var(--dark)}
+.sc button b{display:block;font-weight:normal;font-size:18px}
+.sc button.on{background:var(--dark);color:var(--light)}
+/* закрытая карточка */
+.card{width:min(62vw,250px);aspect-ratio:3/4;margin:16px auto;background:var(--dark);color:#6d675f;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:13px;letter-spacing:.25em;text-transform:uppercase;position:relative}
+.card .n{font-size:56px;color:#3a3733;letter-spacing:0;margin-bottom:6px}
+.card.open{background:var(--paper);border:1px solid var(--dark);color:var(--dark)}
+.card svg{width:70%}
+.prompt{text-align:center;font-size:17px;color:#4a463f;margin:4px auto 12px;max-width:520px}
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:520px;margin:0 auto}
+.choices button{background:var(--paper);border:1px solid var(--dark);font:inherit;font-size:17px;padding:12px 6px;cursor:pointer;color:var(--dark);display:flex;flex-direction:column;align-items:center;gap:6px}
+.choices button svg{width:54px;height:54px}
+.choices button.right{background:var(--dark);color:var(--light)}
+.choices button.wrong{background:var(--acc);color:#fff;border-color:var(--acc)}
+.choices.lock button{cursor:default}
+.listen{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 4px}
+.listen button{background:none;border:1px solid var(--dark);font:inherit;font-size:14px;padding:7px 12px;cursor:pointer}
+/* профиль */
+.bars{margin:10px 0}
+.bar{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;margin:10px 0}
+.bar .nm{font-size:18px}
+.bar .tr{height:16px;background:var(--line);position:relative}
+.bar .tr span{position:absolute;left:0;top:0;bottom:0;background:var(--dark)}
+.bar.lead .tr span{background:var(--acc)}
+.bar .v{font-size:16px;text-align:right}
+table{border-collapse:collapse;width:100%;font-size:15px;margin-top:6px}
+th{font-weight:normal;text-align:left;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mid);border-bottom:1px solid var(--dark);padding:6px 5px}
+td{border-bottom:1px solid var(--line);padding:8px 5px;vertical-align:top}
+.res{border-left:3px solid var(--acc);padding:6px 0 6px 16px;margin:16px 0;display:none}
+.res.on{display:block}
+.res .big{font-size:30px;line-height:1.1;margin-bottom:6px}
+.res .sm{font-size:15px;color:#4a463f;margin-top:8px}
+.tag{display:inline-block;border:1px solid var(--dark);padding:5px 10px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin:6px 0}
+.tag.hi{background:var(--acc);border-color:var(--acc);color:#fff}
+@media(max-width:600px){h1{font-size:31px}.wrap{padding:20px 14px 50px}.item{grid-template-columns:48px 1fr}.item .num{font-size:32px}.item .go{grid-column:2;text-align:left}.bar{grid-template-columns:142px 1fr 34px;gap:8px}.bar .nm{font-size:16px}.sc button{font-size:11px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Occulteria · Раскачка восприятия · Тренажёр 5</div>
+
+<section class="panel on" id="home">
+  <h1>Профиль <span>восприятия</span></h1>
+  <p class="lead">Этот тренажёр показывает, через какие каналы впечатления приходят к вам легче всего: картинка, звук, ощущение или готовое знание. Профиль складывается из двух частей: как вы сами оцениваете свои образы и как вы справляетесь с заданиями на скрытые цели.</p>
+  <p class="note">Пройдите все пять частей по порядку, затем откройте «Ваш профиль». Результаты сохраняются в этом браузере, пока вы их не сбросите, поэтому части можно проходить в разные дни.</p>
+  <div class="list">
+    <button class="item" data-p="p1"><span class="num">01</span><span><div class="t">Опросник</div><div class="d">20 вопросов о том, насколько ясно вы видите, слышите и ощущаете в воображении</div></span><span class="go" data-k="q">Выбрать</span></button>
+    <button class="item" data-p="p2"><span class="num">02</span><span><div class="t">Закрытая картинка</div><div class="d">Канал ясновидения. За закрытой карточкой одна из четырёх картинок. 10 карточек</div></span><span class="go" data-k="vis">Выбрать</span></button>
+    <button class="item" data-p="p3"><span class="num">03</span><span><div class="t">Скрытый звук</div><div class="d">Канал яснослышания. Загадан один из четырёх звуков. 10 попыток</div></span><span class="go" data-k="aud">Выбрать</span></button>
+    <button class="item" data-p="p4"><span class="num">04</span><span><div class="t">Скрытое состояние</div><div class="d">Канал ясночувствования. За карточкой одно из четырёх состояний. 10 карточек</div></span><span class="go" data-k="kin">Выбрать</span></button>
+    <button class="item" data-p="p5"><span class="num">05</span><span><div class="t">Да или нет</div><div class="d">Канал яснознания. На каждый скрытый вопрос загадан ответ «да» или «нет». 20 вопросов</div></span><span class="go" data-k="kno">Выбрать</span></button>
+    <button class="item" data-p="p6"><span class="num">06</span><span><div class="t">Ваш профиль</div><div class="d">Сводка по четырём каналам и ведущий канал</div></span><span class="go">Открыть</span></button>
+  </div>
+  <div class="rule"></div>
+  <p class="note">Перед заданиями на скрытые цели проведите вход из Аудио 6: опора, намерение, целое поле, окно. После последнего задания проведите выход. Ответ в каждом задании выбран заранее и случайно, до вашего ответа, и показывается только после него.</p>
+  <p class="note">Попадания на десяти попытках во многом зависят от случая. Профиль становится надёжнее, если пройти задания несколько раз в разные дни: тогда он считается по всем попыткам сразу.</p>
+</section>
+
+<section class="panel" id="p1">
+  <button class="back">← Все части</button>
+  <h2>Опросник</h2>
+  <p>Отвечайте о том, как обычно бывает у вас, без попытки выглядеть лучше. Здесь нет правильных ответов. Если вопрос просит что-то представить, закройте на секунду глаза, представьте и оцените, насколько ясно получилось.</p>
+  <div class="qs"></div>
+  <button class="btn qdone">Сохранить ответы</button> <span class="note qnote"></span>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p2">
+  <button class="back">← Все части</button>
+  <h2>Закрытая картинка</h2>
+  <p>За каждой закрытой карточкой лежит одна из четырёх картинок: огонь, вода, дерево, камень. Посмотрите на закрытую карточку, закройте глаза и дождитесь первого образа: цвета, формы, движения. Не рассуждайте и не угадывайте по очереди. Выберите то, что ближе всего к первому впечатлению.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div><div class="area"></div><div class="res"></div>
+</section>
+
+<section class="panel" id="p3">
+  <button class="back">← Все части</button>
+  <h2>Скрытый звук</h2>
+  <p>Загадан один из четырёх звуков: колокол, барабан, флейта, вода. Сначала послушайте их, чтобы знать, из чего выбирать. Затем в каждой попытке закройте глаза, прислушайтесь к тишине внутри и дождитесь, какой звук отзовётся первым. После ответа загаданный звук прозвучит.</p>
+  <div class="listen"></div>
+  <button class="btn start">Начать</button>
+  <div class="status"></div><div class="area"></div><div class="res"></div>
+</section>
+
+<section class="panel" id="p4">
+  <button class="back">← Все части</button>
+  <h2>Скрытое состояние</h2>
+  <p>За каждой карточкой лежит одно из четырёх состояний: радость, покой, тревога, печаль. Положите ладонь на грудь или на живот, посмотрите на закрытую карточку и заметьте, что откликнулось в теле: лёгкость, тепло, сжатие, тяжесть. Выберите состояние по телесному отклику, а не по мысли.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div><div class="area"></div><div class="res"></div>
+</section>
+
+<section class="panel" id="p5">
+  <button class="back">← Все части</button>
+  <h2>Да или нет</h2>
+  <p>Для каждого номера заранее загадан ответ «да» или «нет». Вопроса нет, есть только ответ. Посмотрите на номер и отметьте первое знание, которое пришло: «да» или «нет». Отвечайте быстро, в первую секунду, пока не включилось рассуждение.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div><div class="area"></div><div class="res"></div>
+</section>
+
+<section class="panel" id="p6">
+  <button class="back">← Все части</button>
+  <h2>Ваш профиль</h2>
+  <div class="prof"></div>
+  <p style="margin-top:20px"><button class="btn ghost reset">Сбросить все результаты</button> <span class="note rnote"></span></p>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const q=(p,s)=>$(p).querySelector(s);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function rint(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rint(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+const KEY='occulteria_profile_v1';
+let mem={q:null,vis:[],aud:[],kin:[],kno:[]};
+function load(){try{const s=localStorage.getItem(KEY);if(s)mem=Object.assign(mem,JSON.parse(s))}catch(e){}return mem}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(mem))}catch(e){}}
+load();
+let session=0;
+function show(id){session++;document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===id));window.scrollTo(0,0);if(id==='home')marks();if(id==='p6')profile()}
+document.querySelectorAll('.item').forEach(b=>b.onclick=()=>show(b.dataset.p));
+document.querySelectorAll('.back').forEach(b=>b.onclick=()=>show('home'));
+function marks(){document.querySelectorAll('.go[data-k]').forEach(g=>{const k=g.dataset.k;const done=k==='q'?!!mem.q:mem[k].length>0;
+  g.classList.toggle('done',done);g.textContent=done?(k==='q'?'Пройдено':'Пройдено · '+mem[k].length+' '+(mem[k].length===1?'раз':(mem[k].length<5?'раза':'раз'))):'Выбрать'})}
+marks();
+
+// ОПРОСНИК
+const SC_I=['нет образа','смутно','средне','ясно','как наяву'],SC_F=['никогда','редко','иногда','часто','очень часто'];
+const QS=[
+['vis','i','Представьте лицо близкого человека. Насколько ясно вы его видите?'],
+['vis','i','Представьте закат над морем. Насколько ярки цвета?'],
+['vis','i','Представьте свою комнату так, будто стоите в дверях. Насколько ясно видны предметы?'],
+['vis','i','Представьте, как по столу медленно катится красный мяч. Насколько ясно вы видите движение?'],
+['vis','f','Как часто перед сном вы видите картинки с закрытыми глазами?'],
+['aud','i','Представьте голос близкого человека, который зовёт вас по имени. Насколько ясно вы его слышите?'],
+['aud','i','Представьте звук дождя по крыше.'],
+['aud','i','Представьте знакомую мелодию так, будто она звучит рядом.'],
+['aud','i','Представьте звонок своего телефона.'],
+['aud','f','Как часто внутри звучат слова или фразы, которые приходят как будто не от вас?'],
+['kin','i','Представьте, что держите в ладони кубик льда. Насколько ясно вы чувствуете холод?'],
+['kin','i','Представьте, что опускаете руки в тёплую воду.'],
+['kin','i','Представьте шершавую кору дерева под ладонью.'],
+['kin','f','Как часто вы чувствуете настроение человека телом раньше, чем он заговорил?'],
+['kin','f','Как часто в незнакомом месте появляется отчётливое телесное «здесь хорошо» или «здесь плохо»?'],
+['kno','f','Как часто вы знаете, кто звонит, до того как посмотрели на экран?'],
+['kno','f','Как часто ответ на вопрос приходит сразу и целиком, без рассуждения?'],
+['kno','f','Как часто вы заранее знаете, чем кончится разговор или ситуация?'],
+['kno','f','Как часто у вас бывает уверенность «так и есть», которую не можете объяснить, а потом она подтверждается?'],
+['kno','f','Как часто вы принимаете верное решение сразу, не взвешивая?']];
+const CH={vis:'Ясновидение',aud:'Яснослышание',kin:'Ясночувствование',kno:'Яснознание'};
+const CH_SHORT={vis:'картинка',aud:'звук',kin:'ощущение',kno:'знание'};
+(function(){const box=q('p1','.qs');const order=shuffle(QS.map((x,i)=>i));const ans={};window.__clearAns=()=>{for(const k in ans)delete ans[k]};
+  if(mem.q&&mem.q.raw)Object.assign(ans,mem.q.raw);
+  box.innerHTML=order.map((i,n)=>{const [c,t,txt]=QS[i];const L=t==='i'?SC_I:SC_F;return `<div class="qq"><div class="qt"><i>Вопрос ${n+1} из ${QS.length}</i>${txt}</div><div class="sc" data-i="${i}">${L.map((l,k)=>`<button data-v="${k+1}" class="${ans[i]===k+1?'on':''}"><b>${k+1}</b>${l}</button>`).join('')}</div></div>`}).join('');
+  box.querySelectorAll('.sc').forEach(s=>s.querySelectorAll('button').forEach(b=>b.onclick=()=>{s.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');ans[+s.dataset.i]=+b.dataset.v}));
+  q('p1','.qdone').onclick=()=>{const n=Object.keys(ans).length;if(n<QS.length){q('p1','.qnote').textContent=`Отвечено ${n} из ${QS.length}. Ответьте на все вопросы.`;return}
+    const sc={vis:0,aud:0,kin:0,kno:0};QS.forEach(([c],i)=>sc[c]+=ans[i]);mem.q={raw:ans,sc};save();q('p1','.qnote').textContent='';
+    const e=q('p1','.res');e.innerHTML=`<div class="big">Ответы сохранены</div><div class="sm">${Object.keys(CH).map(k=>`${CH[k]}: ${sc[k]} из 25`).join('. ')}. Полную сводку смотрите в части «Ваш профиль».</div>`;e.classList.add('on')};
+})();
+
+// значки и звуки
+const PICS={'огонь':'<svg viewBox="0 0 100 100"><path d="M50 8 C62 30 80 40 76 64 C73 84 60 94 50 94 C36 94 24 84 24 64 C24 50 34 44 38 30 C44 42 46 46 52 50 C54 36 52 22 50 8 Z" fill="#DF481A"/><path d="M50 56 C58 66 62 72 60 80 C58 88 54 90 50 90 C44 90 40 86 40 80 C40 72 46 68 50 56 Z" fill="#e8b41c"/></svg>',
+'вода':'<svg viewBox="0 0 100 100"><path d="M6 40 Q20 28 34 40 T62 40 T94 40" stroke="#2f5fd0" stroke-width="7" fill="none"/><path d="M6 60 Q20 48 34 60 T62 60 T94 60" stroke="#2f5fd0" stroke-width="7" fill="none"/><path d="M6 80 Q20 68 34 80 T62 80 T94 80" stroke="#2f5fd0" stroke-width="7" fill="none"/></svg>',
+'дерево':'<svg viewBox="0 0 100 100"><rect x="45" y="58" width="10" height="36" fill="#6b4a2b"/><circle cx="50" cy="38" r="30" fill="#2f9a4e"/></svg>',
+'камень':'<svg viewBox="0 0 100 100"><path d="M14 80 L22 46 L44 26 L70 30 L88 52 L84 80 Z" fill="#8a8378"/><path d="M44 26 L50 54 L22 46 M50 54 L88 52 M50 54 L60 80" stroke="#5e5850" stroke-width="2" fill="none"/></svg>'};
+const STATES={'радость':['#e8b41c','лёгкость, тепло, расширение в груди'],'покой':['#2f9a4e','ровность, мягкость, медленное дыхание'],'тревога':['#DF481A','сжатие, дрожь, учащение'],'печаль':['#2f5fd0','тяжесть, опускание, холод']};
+function stateSvg(name){return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="${STATES[name][0]}"/></svg>`}
+let AC=null;function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+function play(name){const a=ac(),t=a.currentTime,out=a.createGain();out.gain.value=.5;out.connect(a.destination);
+  if(name==='колокол'){[523,1046*1.01,1568*1.003,2093].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.frequency.value=f;g.gain.setValueAtTime(.35/(i+1),t);g.gain.exponentialRampToValueAtTime(.0005,t+2.4-i*.3);o.connect(g).connect(out);o.start(t);o.stop(t+2.5)})}
+  else if(name==='барабан'){for(let k=0;k<3;k++){const s=t+k*.32,o=a.createOscillator(),g=a.createGain();o.frequency.setValueAtTime(150,s);o.frequency.exponentialRampToValueAtTime(48,s+.25);g.gain.setValueAtTime(.9,s);g.gain.exponentialRampToValueAtTime(.001,s+.35);o.connect(g).connect(out);o.start(s);o.stop(s+.4)}}
+  else if(name==='флейта'){[659,784,880].forEach((f,k)=>{const s=t+k*.45,o=a.createOscillator(),g=a.createGain(),l=a.createOscillator(),lg=a.createGain();o.type='sine';o.frequency.value=f;l.frequency.value=5.5;lg.gain.value=6;l.connect(lg).connect(o.frequency);
+    g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(.3,s+.08);g.gain.setValueAtTime(.3,s+.36);g.gain.linearRampToValueAtTime(0,s+.45);o.connect(g).connect(out);o.start(s);l.start(s);o.stop(s+.5);l.stop(s+.5)})}
+  else{const n=a.sampleRate*1.8,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;const s=a.createBufferSource();s.buffer=b;
+    const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=900;f.Q.value=.8;const g=a.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.6,t+.3);g.gain.setValueAtTime(.6,t+1.3);g.gain.linearRampToValueAtTime(0,t+1.8);
+    const lfo=a.createOscillator(),lg=a.createGain();lfo.frequency.value=3;lg.gain.value=500;lfo.connect(lg).connect(f.frequency);s.connect(f).connect(g).connect(out);s.start(t);lfo.start(t);s.stop(t+1.8);lfo.stop(t+1.8)}}
+const SOUNDS=['колокол','барабан','флейта','вода'];
+q('p3','.listen').innerHTML=SOUNDS.map(s=>`<button data-s="${s}">▸ ${s}</button>`).join('');
+q('p3','.listen').querySelectorAll('button').forEach(b=>b.onclick=()=>play(b.dataset.s));
+
+// общий движок задания со скрытой целью
+function hiddenTask(P,key,cfg){
+  const A=q(P,'.area'),S=q(P,'.status');
+  async function run(){const my=++session;q(P,'.res').classList.remove('on');q(P,'.start').classList.add('hide');let hits=0;
+    for(let i=0;i<cfg.N;i++){const target=rint(cfg.opts.length);// цель выбрана до ответа
+      S.innerHTML=`${cfg.unit} <b>${i+1}</b> из ${cfg.N}`;
+      A.innerHTML=`${cfg.closed(i)}<div class="prompt">${cfg.prompt}</div><div class="choices">${cfg.opts.map((o,k)=>`<button data-k="${k}">${cfg.label(o)}</button>`).join('')}</div>`;
+      const ch=await new Promise(res=>A.querySelectorAll('.choices button').forEach(b=>b.onclick=()=>res(+b.dataset.k)));if(my!==session)return;
+      const box=A.querySelector('.choices');box.classList.add('lock');const bs=box.querySelectorAll('button');bs[target].classList.add('right');if(ch!==target)bs[ch].classList.add('wrong');else hits++;
+      const cl=A.querySelector('.card');if(cl&&cfg.reveal){cl.classList.add('open');cl.innerHTML=cfg.reveal(cfg.opts[target])}
+      if(cfg.onReveal)cfg.onReveal(cfg.opts[target]);
+      S.innerHTML=`${cfg.unit} <b>${i+1}</b> из ${cfg.N} · ${ch===target?'попадание':'загадано: '+cfg.opts[target]}`;
+      await wait(cfg.hold||1600);if(my!==session)return}
+    A.innerHTML='';S.innerHTML='';q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Пройти ещё раз';
+    mem[key].push({h:hits,n:cfg.N,c:1/cfg.opts.length,t:Date.now()});save();
+    const exp=cfg.N/cfg.opts.length;const e=q(P,'.res');
+    e.innerHTML=`<div class="big">${hits} из ${cfg.N}</div><div class="tag">${verdict(hits,cfg.N,1/cfg.opts.length)}</div><div class="sm">Случайный выбор дал бы в среднем ${String(exp).replace('.',',')}. Результат записан в ваш профиль. Канал покажет себя надёжнее, если пройти задание ещё два или три раза в разные дни.</div>`;e.classList.add('on')}
+  q(P,'.start').onclick=run;
+}
+// оценка относительно случая по биномиальному распределению
+function binomTail(k,n,p){let s=0;for(let i=k;i<=n;i++){let c=1;for(let j=0;j<i;j++)c=c*(n-j)/(j+1);s+=c*Math.pow(p,i)*Math.pow(1-p,n-i)}return s}
+function verdict(h,n,p){const pv=binomTail(h,n,p);if(pv<.05)return 'заметно выше случайного';if(pv<.2)return 'немного выше случайного';if(h<n*p)return 'ниже случайного';return 'на уровне случайного'}
+
+hiddenTask('p2','vis',{N:10,unit:'Карточка',opts:Object.keys(PICS),label:o=>PICS[o]+o,
+  closed:i=>`<div class="card"><div class="n">${i+1}</div>закрыто</div>`,prompt:'Закройте глаза. Какой образ пришёл первым?',reveal:o=>PICS[o]+`<div style="margin-top:8px">${o}</div>`,hold:1800});
+hiddenTask('p3','aud',{N:10,unit:'Попытка',opts:SOUNDS,label:o=>o,
+  closed:i=>`<div class="card" style="aspect-ratio:1/1"><div class="n">${i+1}</div>звук загадан</div>`,prompt:'Закройте глаза и прислушайтесь. Какой звук отозвался первым?',reveal:o=>`<div style="font-size:24px">${o}</div>`,onReveal:o=>play(o),hold:2800});
+hiddenTask('p4','kin',{N:10,unit:'Карточка',opts:Object.keys(STATES),label:o=>stateSvg(o)+o,
+  closed:i=>`<div class="card"><div class="n">${i+1}</div>закрыто</div>`,prompt:'Что откликнулось в теле?',reveal:o=>stateSvg(o)+`<div style="margin-top:8px">${o}</div><div style="font-size:11px;letter-spacing:.1em;text-transform:none;margin-top:4px;color:#4a463f">${STATES[o][1]}</div>`,hold:2000});
+hiddenTask('p5','kno',{N:20,unit:'Номер',opts:['да','нет'],label:o=>`<span style="font-size:22px">${o}</span>`,
+  closed:i=>`<div class="card" style="aspect-ratio:1/1;width:min(44vw,170px)"><div class="n">${i+1}</div>ответ загадан</div>`,prompt:'Первое знание: да или нет?',reveal:o=>`<div style="font-size:30px;letter-spacing:.1em">${o}</div>`,hold:900});
+
+// ПРОФИЛЬ
+function profile(){const box=q('p6','.prof');const keys=['vis','aud','kin','kno'];
+  const rows=keys.map(k=>{const self=mem.q?mem.q.sc[k]:null;const a=mem[k];const h=a.reduce((s,r)=>s+r.h,0),n=a.reduce((s,r)=>s+r.n,0),c=a.length?a[0].c:0;
+    const hitScore=n?Math.max(0,Math.min(1,(h/n-c)/(1-c)*2.5)):null;const selfScore=self!==null?(self-5)/20:null;
+    const parts=[selfScore,hitScore].filter(x=>x!==null);const idx=parts.length?parts.reduce((s,x)=>s+x,0)/parts.length:null;
+    return {k,self,h,n,c,idx,passes:a.length,ver:n?verdict(h,n,c):null}});
+  const done=rows.filter(r=>r.idx!==null);
+  if(!done.length){box.innerHTML='<p>Пока нет данных. Пройдите опросник и задания, затем вернитесь сюда.</p>';return}
+  const lead=done.slice().sort((a,b)=>b.idx-a.idx)[0];
+  const missing=[];if(!mem.q)missing.push('опросник');rows.forEach(r=>{if(!r.n)missing.push('задание «'+{vis:'Закрытая картинка',aud:'Скрытый звук',kin:'Скрытое состояние',kno:'Да или нет'}[r.k]+'»')});
+  box.innerHTML=`${missing.length?`<p class="note">Ещё не пройдено: ${missing.join(', ')}. Профиль ниже посчитан по тому, что есть.</p>`:''}
+  <h3>Ведущий канал</h3><div class="big" style="font-size:34px">${CH[lead.k]}</div><p class="note">Ваши впечатления чаще всего приходят как ${CH_SHORT[lead.k]}. С этого канала удобнее начинать профильное обучение, а остальные развивать как дополнительные.</p>
+  <h3>Сводный показатель по каналам</h3><div class="bars">${rows.map(r=>`<div class="bar${r===lead?' lead':''}"><div class="nm">${CH[r.k]}</div><div class="tr"><span style="width:${r.idx===null?0:Math.round(r.idx*100)}%"></span></div><div class="v">${r.idx===null?'нет':Math.round(r.idx*100)}</div></div>`).join('')}</div>
+  <h3>Подробно</h3><table><tr><th>Канал</th><th>Опросник</th><th>Попадания</th><th>Оценка попаданий</th></tr>${rows.map(r=>`<tr><td>${CH[r.k]}</td><td>${r.self===null?'·':r.self+' из 25'}</td><td>${r.n?r.h+' из '+r.n+(r.passes>1?' за '+r.passes+(r.passes<5?' прохода':' проходов'):''):'·'}</td><td>${r.ver||'·'}</td></tr>`).join('')}</table>
+  <p class="note" style="margin-top:14px">Сводный показатель от 0 до 100 складывается поровну из опросника и попаданий. Если попаданий столько же, сколько дал бы случайный выбор, или меньше, эта половина равна нулю. Чем больше попаданий сверх случайного, тем она выше. Профиль не оценивает способности навсегда: каналы, которые сейчас слабые, после тренировки часто начинают работать, поэтому пересчитывайте профиль после каждого профильного модуля.</p>`}
+let rc=0;q('p6','.reset').onclick=()=>{if(!rc){rc=1;q('p6','.rnote').textContent='Нажмите ещё раз, чтобы удалить все результаты.';setTimeout(()=>{rc=0;q('p6','.rnote').textContent=''},4000);return}
+  mem={q:null,vis:[],aud:[],kin:[],kno:[]};save();rc=0;q('p6','.rnote').textContent='Результаты сброшены.';profile();marks();
+  if(window.__clearAns)window.__clearAns();q('p1','.qs').querySelectorAll('button.on').forEach(b=>b.classList.remove('on'))};
+})();
+</script>
+</body>
+</html>
