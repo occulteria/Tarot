@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Тренажёр «Визуальная память». Раскачка восприятия. Occulteria</title>
+<style>
+:root{--light:#F3EDE5;--dark:#161616;--acc:#DF481A;--mid:#8a8378;--line:#d9d0c4;--paper:#fff9f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:var(--dark);font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.45}
+body{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:normal;font-size:40px;line-height:1.05;margin:10px 0 8px}
+h1 span{color:var(--acc)}
+h2{font-weight:normal;font-size:30px;margin:4px 0 12px}
+p{margin:0 0 10px}
+.lead{font-size:19px;max-width:640px}
+.note{font-size:15px;color:#4a463f}
+.rule{height:1px;background:var(--dark);margin:24px 0}
+.list{border-top:1px solid var(--dark);margin-top:22px}
+.item{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;width:100%;background:none;border:none;border-bottom:1px solid var(--dark);padding:18px 4px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.item:hover,.item:active{background:#ebe3d8}
+.item .num{font-size:40px;line-height:1;color:var(--acc)}
+.item .t{font-size:22px;line-height:1.15}
+.item .d{font-size:15px;color:#4a463f;margin-top:4px}
+.item .go{font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid)}
+.back{background:none;border:none;font:inherit;font-size:13px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid);cursor:pointer;padding:6px 0;margin-bottom:10px}
+.back:hover{color:var(--acc)}
+.panel{display:none}.panel.on{display:block}
+.btn{display:inline-block;background:var(--dark);color:var(--light);border:none;padding:13px 24px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;margin:4px 8px 4px 0}
+.btn.ghost{background:none;color:var(--dark);border:1px solid var(--dark)}
+.hide{display:none!important}
+.status{font-size:16px;color:var(--mid);letter-spacing:.12em;min-height:26px;margin:8px 0}
+.status b{color:var(--acc);font-weight:normal}
+/* сетки клеток */
+.cells{display:grid;gap:5px;margin:10px auto;max-width:440px;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.cells button{aspect-ratio:1/1;border:1px solid var(--dark);background:var(--paper);cursor:pointer;padding:0;transition:background .12s}
+.cells button.lit{background:var(--dark)}
+.cells button.sel{background:var(--acc);border-color:var(--acc)}
+.cells button.miss{background:var(--paper);outline:3px solid var(--acc);outline-offset:-6px}
+.cells button.ok{background:var(--dark)}
+.cells.lock button{cursor:default}
+/* сцены */
+.scene{display:grid;gap:6px;margin:10px auto;max-width:520px;background:var(--paper);border:1px solid var(--dark);padding:10px;user-select:none;-webkit-user-select:none}
+.scene .c{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border:none;background:none;padding:0;cursor:default}
+.scene.pick .c{cursor:pointer}
+.scene .c svg{width:78%;height:78%}
+.scene .c.right{outline:3px solid var(--acc);outline-offset:-3px}
+.scene .c.wrong{outline:3px dashed var(--mid);outline-offset:-3px}
+.blank{background:var(--paper);border:1px solid var(--dark);margin:10px auto;max-width:520px;display:flex;align-items:center;justify-content:center;font-size:15px;letter-spacing:.2em;color:var(--mid)}
+.question{font-size:21px;margin:14px 0 10px;text-align:center}
+.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:520px;margin:0 auto}
+.opts button{background:var(--paper);border:1px solid var(--dark);font:inherit;font-size:18px;padding:14px 6px;cursor:pointer;color:var(--dark)}
+.opts button.right{background:var(--dark);color:var(--light)}
+.opts button.wrong{background:var(--acc);color:#fff;border-color:var(--acc)}
+/* пары */
+.pairs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:440px;margin:10px auto;user-select:none;-webkit-user-select:none}
+.pairs button{aspect-ratio:1/1;border:1px solid var(--dark);background:var(--dark);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.pairs button svg{width:70%;height:70%;visibility:hidden}
+.pairs button.open,.pairs button.done{background:var(--paper)}
+.pairs button.open svg,.pairs button.done svg{visibility:visible}
+.pairs button.done{border-color:var(--line)}
+.res{border-left:3px solid var(--acc);padding:6px 0 6px 16px;margin:16px 0;display:none}
+.res.on{display:block}
+.res .big{font-size:30px;line-height:1.1;margin-bottom:6px}
+.res .sm{font-size:15px;color:#4a463f;margin-top:8px}
+.scale{display:flex;margin:10px 0 4px;max-width:420px}
+.scale div{flex:1;text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:8px 4px;border:1px solid var(--dark);color:var(--mid)}
+.scale div+div{border-left:none}
+.scale div.on{background:var(--dark);color:var(--light)}
+.scale div.on.hi{background:var(--acc);border-color:var(--acc)}
+@media(max-width:600px){h1{font-size:31px}.wrap{padding:20px 14px 50px}.item{grid-template-columns:48px 1fr}.item .num{font-size:32px}.item .go{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Occulteria · Раскачка восприятия · Тренажёр 3</div>
+
+<section class="panel on" id="home">
+  <h1>Визуальная <span>память</span></h1>
+  <p class="lead">Пять упражнений на то, чтобы удержать увиденное: где стояло, в каком порядке появилось, какого было цвета и что изменилось. Выберите любое.</p>
+  <div class="list">
+    <button class="item" data-p="p1"><span class="num">01</span><span><div class="t">Узор</div><div class="d">На мгновение загораются клетки. Повторите узор по памяти. С каждым шагом клеток больше</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p2"><span class="num">02</span><span><div class="t">Порядок</div><div class="d">Клетки загораются одна за другой. Повторите их в том же порядке</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p3"><span class="num">03</span><span><div class="t">Картина</div><div class="d">Шесть цветных фигур на 6 секунд, потом вопрос о том, что вы видели. 8 картин</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p4"><span class="num">04</span><span><div class="t">Что изменилось</div><div class="d">Запомните поле. Оно исчезнет и вернётся с одним изменением. Найдите его. 10 полей</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p5"><span class="num">05</span><span><div class="t">Пары</div><div class="d">Открывайте карточки по две и находите одинаковые. 8 пар</div></span><span class="go">Выбрать</span></button>
+  </div>
+  <div class="rule"></div>
+  <p class="note">Смотрите на поле целиком и старайтесь запомнить его как одну картинку, а не перечислять про себя. Проговаривание мешает зрительной памяти: оставьте язык расслабленным, как в Аудио «Тихий ум».</p>
+  <p class="note">Перед занятием сделайте короткое заземление: столб от основания позвоночника в землю, корни от стоп. Если устали глаза или появилась тяжесть в голове, остановитесь и продолжите в другой раз.</p>
+  <p class="note">Уровень «слабый, средний, высокий» дан как ориентир для взрослого человека. Сравнивайте себя прежде всего со своими прошлыми попытками.</p>
+</section>
+
+<section class="panel" id="p1">
+  <button class="back">← Все упражнения</button>
+  <h2>Узор</h2>
+  <p>На поле на короткое время загорятся несколько клеток. Когда они погаснут, нажмите те же клетки. Порядок не важен. Если узор верный, следующий будет на одну клетку больше. Две ошибки подряд завершают упражнение.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div>
+  <div class="cells lock"></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p2">
+  <button class="back">← Все упражнения</button>
+  <h2>Порядок</h2>
+  <p>Клетки будут загораться по одной. Когда показ закончится, нажмите их в том же порядке. После верного ответа цепочка удлиняется на одну клетку. Две ошибки подряд завершают упражнение.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div>
+  <div class="cells lock"></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p3">
+  <button class="back">← Все упражнения</button>
+  <h2>Картина</h2>
+  <p>На 6 секунд появятся шесть фигур разного цвета. Затем картина исчезнет, и вы ответите на вопрос о ней: какого цвета была фигура, что стояло на месте, сколько было фигур одного цвета. Вопрос заранее неизвестен, поэтому запоминайте всё.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div>
+  <div class="stage3"></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p4">
+  <button class="back">← Все упражнения</button>
+  <h2>Что изменилось</h2>
+  <p>На 5 секунд появится поле с фигурами. Потом оно на секунду исчезнет и вернётся с одним изменением: одна фигура сменит цвет, сменит форму или переедет на пустое место. Нажмите изменившуюся фигуру. Если фигура переехала, нажмите её на новом месте.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div>
+  <div class="stage4"></div>
+  <div class="res"></div>
+</section>
+
+<section class="panel" id="p5">
+  <button class="back">← Все упражнения</button>
+  <h2>Пары</h2>
+  <p>Все карточки лежат рубашкой вверх. Открывайте по две. Если рисунки одинаковые, пара остаётся открытой. Если разные, карточки закроются. Запоминайте, где что лежит, и найдите все пары за наименьшее число ходов.</p>
+  <button class="btn start">Начать</button>
+  <div class="status"></div>
+  <div class="pairs"></div>
+  <div class="res"></div>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const q=(p,s)=>$(p).querySelector(s);
+const d1=s=>(Math.round(s*10)/10).toString().replace('.',',');
+const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function sample(a,n){return shuffle(a.slice()).slice(0,n)}
+function scale(lv){const n=['Слабый','Средний','Высокий'];return '<div class="scale">'+n.map((t,i)=>`<div class="${i===lv?'on'+(i===2?' hi':''):''}">${t}</div>`).join('')+'</div>'}
+function showRes(p,big,lv,sm){const e=q(p,'.res');e.innerHTML=`<div class="big">${big}</div>${scale(lv)}<div class="sm">${sm}</div>`;e.classList.add('on')}
+function hideRes(p){q(p,'.res').classList.remove('on')}
+let session=0;
+function show(id){session++;document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===id));window.scrollTo(0,0)}
+document.querySelectorAll('.item').forEach(b=>b.onclick=()=>show(b.dataset.p));
+document.querySelectorAll('.back').forEach(b=>b.onclick=()=>show('home'));
+
+// фигуры
+const COLORS=[['красный','#d23a24'],['синий','#2f5fd0'],['зелёный','#2f9a4e'],['жёлтый','#e8b41c'],['чёрный','#161616']];
+const TYPES=['круг','квадрат','треугольник','ромб','звезда','крест'];
+function svg(type,col){const c=COLORS[col][1];let s;
+  if(type==='круг')s=`<circle cx="50" cy="50" r="42" fill="${c}"/>`;
+  else if(type==='квадрат')s=`<rect x="12" y="12" width="76" height="76" fill="${c}"/>`;
+  else if(type==='треугольник')s=`<polygon points="50,8 94,88 6,88" fill="${c}"/>`;
+  else if(type==='ромб')s=`<polygon points="50,4 94,50 50,96 6,50" fill="${c}"/>`;
+  else if(type==='звезда')s=`<polygon points="50,4 61,37 96,37 68,58 79,92 50,71 21,92 32,58 4,37 39,37" fill="${c}"/>`;
+  else s=`<polygon points="36,6 64,6 64,36 94,36 94,64 64,64 64,94 36,94 36,64 6,64 6,36 36,36" fill="${c}"/>`;
+  return `<svg viewBox="0 0 100 100">${s}</svg>`}
+
+// 1 УЗОР и 2 ПОРЯДОК
+function cellTask(P,mode){
+  const G=q(P,'.cells'),S=q(P,'.status');
+  async function run(){const my=++session;hideRes(P);q(P,'.start').classList.add('hide');let len=3,fails=0,best=0,total=0;
+    while(true){
+      const n=mode==='seq'?4:(len<=5?4:len<=9?5:6);G.style.gridTemplateColumns=`repeat(${n},1fr)`;G.innerHTML='';
+      const cells=[];for(let k=0;k<n*n;k++){const b=document.createElement('button');G.appendChild(b);cells.push(b)}
+      const target=sample([...Array(n*n).keys()],Math.min(len,n*n-1));
+      S.innerHTML=`${mode==='seq'?'Цепочка':'Узор'} из <b>${len}</b> ${len<5?'клетки':'клеток'} · смотрите`;
+      G.classList.add('lock');await wait(700);if(my!==session)return;
+      if(mode==='seq'){for(const t of target){cells[t].classList.add('lit');await wait(650);cells[t].classList.remove('lit');await wait(250);if(my!==session)return}}
+      else{target.forEach(t=>cells[t].classList.add('lit'));await wait(1200+250*len);if(my!==session)return;target.forEach(t=>cells[t].classList.remove('lit'))}
+      S.innerHTML=`Ваш ответ: нажмите ${mode==='seq'?'клетки по порядку':'все клетки узора'}`;G.classList.remove('lock');
+      const res=await new Promise(resolve=>{const chosen=[];cells.forEach((b,k)=>b.onclick=()=>{if(G.classList.contains('lock')||b.classList.contains('sel'))return;
+        b.classList.add('sel');chosen.push(k);
+        if(mode==='seq'&&chosen[chosen.length-1]!==target[chosen.length-1]){resolve({ok:false,chosen});return}
+        if(chosen.length===target.length){resolve({ok:mode==='seq'?true:chosen.every(c=>target.includes(c)),chosen})}})});
+      if(my!==session)return;G.classList.add('lock');total++;
+      if(!res.ok){target.forEach(t=>{if(!res.chosen.includes(t)||mode==='seq')cells[t].classList.add('miss')});res.chosen.forEach(c=>{if(target.includes(c)&&mode!=='seq'){cells[c].classList.remove('sel');cells[c].classList.add('ok')}})}
+      S.innerHTML=res.ok?'Верно':'Неверно · правильные клетки обведены';await wait(res.ok?700:1600);if(my!==session)return;
+      if(res.ok){best=Math.max(best,len);len++;fails=0}else{fails++;if(fails>=2)break}
+    }
+    G.innerHTML='';S.innerHTML='';q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Заново';
+    const lv=best>=7?2:best>=5?1:0;
+    showRes(P,best?`${best} ${mode==='seq'?'клеток в цепочке':'клеток в узоре'}`:'Ни одного верного ответа',lv,
+      `Это наибольшая длина, которую вы удержали без ошибки. Всего попыток: ${total}. Ориентир: 7 и больше высокий уровень, 5–6 средний, 4 и меньше слабый.`)}
+  q(P,'.start').onclick=run;
+}
+cellTask('p1','set');cellTask('p2','seq');
+
+// 3 КАРТИНА
+(function(){const P='p3',A=q(P,'.stage3'),S=q(P,'.status');
+  const POS=['вверху слева','вверху в центре','вверху справа','внизу слева','внизу в центре','внизу справа'];
+  async function run(){const my=++session;hideRes(P);q(P,'.start').classList.add('hide');let score=0;const R=8;
+    for(let r=0;r<R;r++){
+      const types=sample(TYPES,6),items=types.map(t=>({t,c:Math.floor(Math.random()*COLORS.length)}));
+      S.innerHTML=`Картина <b>${r+1}</b> из ${R} · запоминайте`;
+      A.innerHTML=`<div class="scene" style="grid-template-columns:repeat(3,1fr)">${items.map(it=>`<div class="c">${svg(it.t,it.c)}</div>`).join('')}</div>`;
+      await wait(6000);if(my!==session)return;
+      // вопрос
+      const kind=pick([0,1,2]);let qt,opts,ans;
+      if(kind===0){const k=Math.floor(Math.random()*6),it=items[k];qt=it.t==='звезда'?'Какого цвета была звезда?':`Какого цвета был ${it.t}?`;
+        const others=sample(COLORS.map((c,i)=>i).filter(i=>i!==it.c),3);opts=shuffle([it.c,...others]).map(i=>({l:COLORS[i][0],ok:i===it.c}))}
+      else if(kind===1){const k=Math.floor(Math.random()*6),it=items[k];qt=`Какая фигура стояла ${POS[k]}?`;
+        const others=sample(TYPES.filter(t=>t!==it.t),3);opts=shuffle([it.t,...others]).map(t=>({l:t,ok:t===it.t}))}
+      else{const c=Math.floor(Math.random()*COLORS.length),n=items.filter(it=>it.c===c).length;qt=`Сколько было ${['красных','синих','зелёных','жёлтых','чёрных'][c]} фигур?`;
+        const set=new Set([n]);while(set.size<4)set.add(Math.floor(Math.random()*5));opts=[...set].sort((a,b)=>a-b).map(v=>({l:String(v),ok:v===n}))}
+      S.innerHTML=`Картина <b>${r+1}</b> из ${R} · вопрос`;
+      A.innerHTML=`<div class="blank" style="aspect-ratio:3/2">картина скрыта</div><div class="question">${qt}</div><div class="opts">${opts.map((o,i)=>`<button data-i="${i}">${o.l}</button>`).join('')}</div>`;
+      const k=await new Promise(res=>A.querySelectorAll('.opts button').forEach(b=>b.onclick=()=>res(+b.dataset.i)));if(my!==session)return;
+      const btns=A.querySelectorAll('.opts button');opts.forEach((o,i)=>{if(o.ok)btns[i].classList.add('right')});if(!opts[k].ok)btns[k].classList.add('wrong');else score++;
+      A.querySelector('.blank').outerHTML=`<div class="scene" style="grid-template-columns:repeat(3,1fr)">${items.map(it=>`<div class="c">${svg(it.t,it.c)}</div>`).join('')}</div>`;
+      await wait(opts[k].ok?1300:2600);if(my!==session)return}
+    A.innerHTML='';S.innerHTML='';q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Заново';
+    const lv=score>=7?2:score>=5?1:0;
+    showRes(P,`${score} из ${R} верно`,lv,'Ориентир: 7–8 верных ответов высокий уровень, 5–6 средний, 4 и меньше слабый. После каждого ответа картина показывалась снова, чтобы вы могли сверить, что упустили.')}
+  q(P,'.start').onclick=run;
+})();
+
+// 4 ЧТО ИЗМЕНИЛОСЬ
+(function(){const P='p4',A=q(P,'.stage4'),S=q(P,'.status');const COLS=4,ROWS=3,N=COLS*ROWS;
+  function draw(cells,pickable){return `<div class="scene${pickable?' pick':''}" style="grid-template-columns:repeat(${COLS},1fr)">${cells.map((it,i)=>`<button class="c" data-i="${i}">${it?svg(it.t,it.c):''}</button>`).join('')}</div>`}
+  async function run(){const my=++session;hideRes(P);q(P,'.start').classList.add('hide');let score=0;const R=10;
+    for(let r=0;r<R;r++){
+      const cells=Array(N).fill(null);sample([...Array(N).keys()],8).forEach(k=>cells[k]={t:pick(TYPES),c:Math.floor(Math.random()*COLORS.length)});
+      S.innerHTML=`Поле <b>${r+1}</b> из ${R} · запоминайте`;A.innerHTML=draw(cells,false);await wait(5000);if(my!==session)return;
+      const h=A.querySelector('.scene').offsetHeight;A.innerHTML=`<div class="blank" style="height:${h}px">·</div>`;await wait(1000);if(my!==session)return;
+      const occ=cells.map((c,i)=>c?i:-1).filter(i=>i>=0),k=pick(occ),kind=pick([0,1,2]);const after=cells.map(c=>c?{...c}:null);let target=k;
+      if(kind===0){let c;do{c=Math.floor(Math.random()*COLORS.length)}while(c===after[k].c);after[k].c=c}
+      else if(kind===1){let t;do{t=pick(TYPES)}while(t===after[k].t);after[k].t=t}
+      else{const empty=after.map((c,i)=>c?-1:i).filter(i=>i>=0),e=pick(empty);after[e]=after[k];after[k]=null;target=e}
+      S.innerHTML=`Поле <b>${r+1}</b> из ${R} · что изменилось?`;A.innerHTML=draw(after,true);
+      const choice=await new Promise(res=>A.querySelectorAll('.scene .c').forEach(b=>b.onclick=()=>res(+b.dataset.i)));if(my!==session)return;
+      const bs=A.querySelectorAll('.scene .c');bs[target].classList.add('right');if(choice!==target)bs[choice].classList.add('wrong');else score++;
+      S.innerHTML=(choice===target?'Верно':'Неверно')+' · '+['сменился цвет','сменилась форма','фигура переехала'][kind];
+      await wait(choice===target?1100:2200);if(my!==session)return}
+    A.innerHTML='';S.innerHTML='';q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Заново';
+    const lv=score>=8?2:score>=6?1:0;
+    showRes(P,`${score} из ${R} найдено`,lv,'Ориентир: 8–10 найденных изменений высокий уровень, 6–7 средний, 5 и меньше слабый. Изменившаяся фигура после ответа обводилась оранжевым.')}
+  q(P,'.start').onclick=run;
+})();
+
+// 5 ПАРЫ
+(function(){const P='p5',G=q(P,'.pairs'),S=q(P,'.status');let open=[],moves=0,found=0,t0,lock=false;
+  q(P,'.start').onclick=()=>{session++;hideRes(P);open=[];moves=0;found=0;lock=false;q(P,'.start').textContent='Заново';
+    const all=[];TYPES.forEach(t=>COLORS.forEach((c,i)=>all.push({t,c:i})));const uniq=sample(all,8);
+    const deck=shuffle([...uniq,...uniq].map(k=>({...k,id:uniq.indexOf(k)})));
+    G.innerHTML='';deck.forEach(d=>{const b=document.createElement('button');b.innerHTML=svg(d.t,d.c);b.dataset.id=d.id;b.onclick=()=>flip(b);G.appendChild(b)});
+    S.innerHTML='Ходов: <b>0</b>';t0=performance.now()};
+  function flip(b){if(lock||b.classList.contains('open')||b.classList.contains('done'))return;b.classList.add('open');open.push(b);
+    if(open.length<2)return;moves++;S.innerHTML=`Ходов: <b>${moves}</b>`;const [a,c]=open;
+    if(a.dataset.id===c.dataset.id){a.classList.replace('open','done');c.classList.replace('open','done');open=[];found++;if(found===8)finish()}
+    else{lock=true;setTimeout(()=>{a.classList.remove('open');c.classList.remove('open');open=[];lock=false},750)}}
+  function finish(){const s=(performance.now()-t0)/1000;const lv=moves<=14?2:moves<=20?1:0;
+    showRes(P,`${moves} ходов`,lv,`Все пары найдены за ${fmt(s)}. Меньше 8 ходов не бывает. Ориентир: до 14 ходов высокий уровень, до 20 средний, больше слабый.`);q(P,'.start').textContent='Заново'}
+})();
+})();
+</script>
+</body>
+</html>
