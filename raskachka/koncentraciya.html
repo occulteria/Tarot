@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Тренажёр «Концентрация внимания». Раскачка восприятия. Occulteria</title>
+<style>
+:root{--light:#F3EDE5;--dark:#161616;--acc:#DF481A;--mid:#8a8378;--line:#d9d0c4;--paper:#fff9f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:var(--dark);font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.45}
+body{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:normal;font-size:40px;line-height:1.05;margin:10px 0 8px}
+h1 span{color:var(--acc)}
+h2{font-weight:normal;font-size:30px;margin:4px 0 12px}
+p{margin:0 0 10px}
+.lead{font-size:19px;max-width:640px}
+.note{font-size:15px;color:#4a463f}
+.rule{height:1px;background:var(--dark);margin:24px 0}
+/* список */
+.list{border-top:1px solid var(--dark);margin-top:22px}
+.item{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;width:100%;background:none;border:none;border-bottom:1px solid var(--dark);padding:18px 4px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.item:hover,.item:active{background:#ebe3d8}
+.item .num{font-size:40px;line-height:1;color:var(--acc)}
+.item .t{font-size:22px;line-height:1.15}
+.item .d{font-size:15px;color:#4a463f;margin-top:4px}
+.item .go{font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid)}
+.back{background:none;border:none;font:inherit;font-size:13px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid);cursor:pointer;padding:6px 0;margin-bottom:10px}
+.back:hover{color:var(--acc)}
+.panel{display:none}.panel.on{display:block}
+.btn{display:inline-block;background:var(--dark);color:var(--light);border:none;padding:13px 24px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;margin:4px 8px 4px 0}
+.btn.ghost{background:none;color:var(--dark);border:1px solid var(--dark)}
+.opts{margin:8px 0 14px}
+.opts label{display:inline-block;margin:0 16px 8px 0;font-size:16px;cursor:pointer}
+.opts input{accent-color:var(--acc);margin-right:6px}
+.stage{position:relative;background:var(--dark);color:var(--light);margin:14px 0;height:62vh;min-height:360px;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow:hidden;cursor:pointer}
+.stage .hud{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;font-size:14px;letter-spacing:.2em;color:#8a847b;pointer-events:none;z-index:2}
+.stage canvas{display:block;width:100%;height:100%}
+.stop{position:absolute;bottom:14px;right:14px;background:none;color:#8a847b;border:1px solid #4a463f;font:inherit;font-size:13px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;z-index:3}
+.full{position:fixed!important;inset:0;margin:0!important;z-index:50;height:100%!important}
+.hide{display:none!important}
+/* результат */
+.res{border-left:3px solid var(--acc);padding:6px 0 6px 16px;margin:16px 0;display:none}
+.res.on{display:block}
+.res .big{font-size:30px;line-height:1.1;margin-bottom:6px}
+.res .sm{font-size:15px;color:#4a463f;margin-top:8px}
+.scale{display:flex;margin:10px 0 4px;max-width:420px}
+.scale div{flex:1;text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:8px 4px;border:1px solid var(--dark);color:var(--mid)}
+.scale div+div{border-left:none}
+.scale div.on{background:var(--dark);color:var(--light)}
+.scale div.on.hi{background:var(--acc);border-color:var(--acc)}
+/* точка */
+#fixDot{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--light)}
+.flash{position:absolute;inset:0;border:3px solid var(--acc);opacity:0;pointer-events:none}
+/* сетки */
+.grid{display:grid;gap:4px;margin:14px auto;max-width:520px}
+.grid button{aspect-ratio:1/1;border:1px solid var(--dark);background:var(--paper);font:inherit;font-size:clamp(16px,4.6vw,30px);cursor:pointer;color:var(--dark);padding:0}
+.grid button.r{color:#c8321e}
+.grid button.done{background:var(--line);color:#9c958a}
+.grid button.err{animation:err .35s}
+@keyframes err{0%{background:var(--acc)}100%{background:var(--paper)}}
+.next{text-align:center;font-size:16px;color:var(--mid);letter-spacing:.15em;min-height:24px}
+/* корректура */
+.letters{font-family:"Courier New",Courier,monospace;font-size:clamp(16px,3.8vw,22px);line-height:1.75;background:var(--paper);border:1px solid var(--dark);padding:12px;margin:14px 0;word-break:break-all;user-select:none;-webkit-user-select:none}
+.letters span{cursor:pointer;padding:0 1px}
+.letters span.m{background:var(--dark);color:var(--light)}
+.letters.rev span.hit{background:var(--dark);color:var(--light)}
+.letters.rev span.miss{outline:2px solid var(--acc);color:var(--acc)}
+.letters.rev span.fa{background:var(--acc);color:#fff}
+.letters.rev span.after{opacity:.3}
+/* струп */
+#stWord{position:absolute;left:0;right:0;top:34%;text-align:center;font-size:clamp(40px,12vw,76px);letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+#stBtns{position:absolute;left:12px;right:12px;bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#stBtns button{background:#262422;color:var(--light);border:1px solid #4a463f;font:inherit;font-size:20px;padding:16px 6px;cursor:pointer}
+#stBtns button:active{background:#3a3733}
+/* лишний знак */
+.odd{display:grid;gap:3px;margin:14px auto;max-width:520px}
+.odd button{aspect-ratio:1/1;border:none;background:var(--paper);font-family:"Times New Roman",Times,serif;font-size:clamp(15px,4.2vw,28px);cursor:pointer;color:var(--dark);padding:0}
+.odd button.err{animation:err .35s}
+input[type=number]{font:inherit;font-size:22px;width:120px;padding:6px 8px;border:1px solid var(--dark);background:var(--paper)}
+@media(max-width:600px){h1{font-size:31px}.wrap{padding:20px 14px 50px}.item{grid-template-columns:48px 1fr}.item .num{font-size:32px}.item .go{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Occulteria · Раскачка восприятия · Тренажёр 1</div>
+
+<!-- СПИСОК -->
+<section class="panel on" id="home">
+  <h1>Концентрация <span>внимания</span></h1>
+  <p class="lead">Семь упражнений на собранное внимание. Выберите любое. Проходить их можно в любом порядке и повторять сколько угодно раз.</p>
+  <div class="list">
+    <button class="item" data-p="p1"><span class="num">01</span><span><div class="t">Точка</div><div class="d">Удержание взгляда на неподвижной точке. 1, 3 или 5 минут</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p2"><span class="num">02</span><span><div class="t">Ведение точки</div><div class="d">Следить за плывущей точкой и ловить её вспышки. 2 или 4 минуты</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p3"><span class="num">03</span><span><div class="t">Таблицы Шульте</div><div class="d">Найти числа по порядку. Обычная и красно-чёрная таблица</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p4"><span class="num">04</span><span><div class="t">Корректурная проба</div><div class="d">Отметить все буквы К и Р в сплошном тексте. 2 минуты</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p5"><span class="num">05</span><span><div class="t">Цвет и слово</div><div class="d">Называть цвет букв, не поддаваясь написанному слову. 30 карточек</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p6"><span class="num">06</span><span><div class="t">Лишний знак</div><div class="d">Найти один отличающийся знак среди одинаковых. 10 полей</div></span><span class="go">Выбрать</span></button>
+    <button class="item" data-p="p7"><span class="num">07</span><span><div class="t">Счёт с помехой</div><div class="d">Считать только синие вспышки среди красных. 1 минута</div></span><span class="go">Выбрать</span></button>
+  </div>
+  <div class="rule"></div>
+  <p class="note">Перед занятием сядьте удобно и сделайте короткое заземление: столб от основания позвоночника в землю, корни от стоп. Если появилась тяжесть в голове или устали глаза, остановитесь, опустите внимание к стопам и продолжите в другой раз.</p>
+  <p class="note">Уровень «слабый, средний, высокий» в результатах дан как ориентир для взрослого человека. Сравнивайте себя прежде всего со своими прошлыми попытками.</p>
+</section>
+
+<!-- 1 ТОЧКА -->
+<section class="panel" id="p1">
+  <button class="back">← Все упражнения</button>
+  <h2>Точка</h2>
+  <p>В центре экрана будет одна неподвижная точка. Смотрите на неё спокойно, не напрягая глаза. Как только заметили, что внимание ушло в мысль, звук или ощущение, нажмите на экран или пробел и верните взгляд к точке.</p>
+  <div class="opts">
+    <label><input type="radio" name="dd" value="60">1 минута</label>
+    <label><input type="radio" name="dd" value="180" checked>3 минуты</label>
+    <label><input type="radio" name="dd" value="300">5 минут</label>
+  </div>
+  <button class="btn start">Начать</button>
+  <div class="stage hide"><div class="hud"><span class="left"></span><span class="cnt"></span></div><div id="fixDot"></div><div class="flash"></div><button class="stop">Завершить</button></div>
+  <div class="res"></div>
+</section>
+
+<!-- 2 ВЕДЕНИЕ -->
+<section class="panel" id="p2">
+  <button class="back">← Все упражнения</button>
+  <h2>Ведение точки</h2>
+  <p>Светлая точка плывёт по экрану. Ведите её взглядом, не отпуская. Иногда она на мгновение вспыхивает оранжевым: в этот момент нажмите на экран или пробел. Нажатия без вспышки считаются ложными.</p>
+  <div class="opts">
+    <label><input type="radio" name="td" value="120" checked>2 минуты</label>
+    <label><input type="radio" name="td" value="240">4 минуты</label>
+  </div>
+  <div class="opts">
+    <label><input type="radio" name="tv" value="1" checked>Плавно</label>
+    <label><input type="radio" name="tv" value="1.7">Быстрее</label>
+  </div>
+  <button class="btn start">Начать</button>
+  <div class="stage hide"><div class="hud"><span class="left"></span><span></span></div><canvas></canvas><button class="stop">Завершить</button></div>
+  <div class="res"></div>
+</section>
+
+<!-- 3 ШУЛЬТЕ -->
+<section class="panel" id="p3">
+  <button class="back">← Все упражнения</button>
+  <h2>Таблицы Шульте</h2>
+  <p>Найдите и нажмите числа по порядку, как можно быстрее. Взгляд держите в центре таблицы и старайтесь видеть её целиком, не бегая глазами по клеткам.</p>
+  <div class="opts">
+    <label><input type="radio" name="sm" value="5" checked>Обычная, 5 × 5, числа от 1 до 25</label><br>
+    <label><input type="radio" name="sm" value="rb">Красно-чёрная, 7 × 7: по очереди чёрное по возрастанию от 1 до 25 и красное по убыванию от 24 до 1</label>
+  </div>
+  <button class="btn start">Начать</button>
+  <div class="next"></div>
+  <div class="grid"></div>
+  <div class="res"></div>
+</section>
+
+<!-- 4 КОРРЕКТУРА -->
+<section class="panel" id="p4">
+  <button class="back">← Все упражнения</button>
+  <h2>Корректурная проба</h2>
+  <p>Идите по строкам слева направо, как при чтении, и нажимайте каждую букву <b>К</b> и каждую букву <b>Р</b>. Повторное нажатие снимает отметку. На работу 2 минуты. Назад не возвращайтесь: важна ровная работа на всём отрезке.</p>
+  <button class="btn start">Начать</button><button class="btn ghost hide done">Готово</button> <span class="note time"></span>
+  <div class="letters hide"></div>
+  <div class="res"></div>
+</section>
+
+<!-- 5 СТРУП -->
+<section class="panel" id="p5">
+  <button class="back">← Все упражнения</button>
+  <h2>Цвет и слово</h2>
+  <p>На экране будут появляться названия цветов, написанные краской другого или того же цвета. Нажимайте кнопку с цветом <b>краски</b>, которой написано слово. Само слово не читайте. Например, слово «синий», написанное красным, требует кнопки «красный».</p>
+  <p class="note">Это упражнение тренирует умение держать задачу и отсекать то, что само лезет в голову.</p>
+  <button class="btn start">Начать</button>
+  <div class="stage hide" style="cursor:default"><div class="hud"><span class="left"></span><span></span></div><div id="stWord"></div><div id="stBtns"></div><button class="stop" style="top:10px;bottom:auto;right:12px;padding:6px 12px">Завершить</button></div>
+  <div class="res"></div>
+</section>
+
+<!-- 6 ЛИШНИЙ ЗНАК -->
+<section class="panel" id="p6">
+  <button class="back">← Все упражнения</button>
+  <h2>Лишний знак</h2>
+  <p>В поле одинаковые знаки, и среди них ровно один отличается. Найдите его и нажмите. Будет 10 полей, с каждым поле становится больше. Смотрите на поле целиком, не перебирая знаки по одному.</p>
+  <button class="btn start">Начать</button>
+  <div class="next"></div>
+  <div class="odd"></div>
+  <div class="res"></div>
+</section>
+
+<!-- 7 СЧЁТ -->
+<section class="panel" id="p7">
+  <button class="back">← Все упражнения</button>
+  <h2>Счёт с помехой</h2>
+  <p>На экране будут вспыхивать синие и красные круги в разных местах. Считайте про себя только <b style="color:#2f5fd0">синие</b>, красные пропускайте. Ничего не нажимайте до конца. В конце введите своё число.</p>
+  <div class="opts">
+    <label><input type="radio" name="cs" value="1" checked>Спокойно</label>
+    <label><input type="radio" name="cs" value="2">Быстрее</label>
+  </div>
+  <button class="btn start">Начать</button>
+  <div class="stage hide" style="cursor:default"><div class="hud"><span class="left"></span><span></span></div><canvas></canvas><button class="stop">Завершить</button></div>
+  <div class="hide ask" style="margin:14px 0"><p>Сколько было синих кругов?</p><input type="number" min="0" inputmode="numeric"> <button class="btn check">Проверить</button></div>
+  <div class="res"></div>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const q=(p,s)=>$(p).querySelector(s);
+const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const d1=s=>(Math.round(s*10)/10).toString().replace('.',',');
+const plural=(n,a,b,c)=>{n=Math.abs(n)%100;const m=n%10;if(n>10&&n<20)return c;if(m>1&&m<5)return b;if(m==1)return a;return c};
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function scale(lv){const n=['Слабый','Средний','Высокий'];return '<div class="scale">'+n.map((t,i)=>`<div class="${i===lv?'on'+(i===2?' hi':''):''}">${t}</div>`).join('')+'</div>'}
+function showRes(p,big,lv,sm){const e=q(p,'.res');e.innerHTML=`<div class="big">${big}</div>${lv==null?'':scale(lv)}<div class="sm">${sm}</div>`;e.classList.add('on')}
+function hideRes(p){q(p,'.res').classList.remove('on')}
+function full(el,on){el.classList.toggle('full',on);document.body.style.overflow=on?'hidden':''}
+function opt(name){return document.querySelector(`input[name=${name}]:checked`).value}
+function fitCanvas(c){const r=c.getBoundingClientRect(),d=window.devicePixelRatio||1;c.width=Math.round(r.width*d);c.height=Math.round(r.height*d);const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w:r.width,h:r.height}}
+
+let stopActive=null,spaceHandler=null;
+function show(id){if(stopActive)stopActive();document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===id));window.scrollTo(0,0)}
+document.querySelectorAll('.item').forEach(b=>b.onclick=()=>show(b.dataset.p));
+document.querySelectorAll('.back').forEach(b=>b.onclick=()=>show('home'));
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&spaceHandler){e.preventDefault();spaceHandler()}});
+
+// 1 ТОЧКА
+(function(){
+  const P='p1',st=q(P,'.stage');let t0,dur,lapses,raf,running=false;
+  function tick(){const el=(performance.now()-t0)/1000;q(P,'.left').textContent=fmt(dur-el);if(el>=dur)return end(true);raf=requestAnimationFrame(tick)}
+  function lapse(){if(!running)return;lapses.push((performance.now()-t0)/1000);q(P,'.cnt').textContent=lapses.length;const f=q(P,'.flash');f.style.transition='none';f.style.opacity=1;requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transition='opacity .5s';f.style.opacity=0}))}
+  function end(done){if(!running)return;running=false;cancelAnimationFrame(raf);spaceHandler=null;stopActive=null;full(st,false);st.classList.add('hide');q(P,'.start').classList.remove('hide');
+    const el=Math.min(dur,(performance.now()-t0)/1000);if(el<10){hideRes(P);return}
+    const pts=[0,...lapses,el];let mx=0;for(let i=1;i<pts.length;i++)mx=Math.max(mx,pts[i]-pts[i-1]);
+    const n=lapses.length,avg=el/(n+1),lv=avg>=40?2:avg>=15?1:0;
+    showRes(P,`${n} ${plural(n,'отвлечение','отвлечения','отвлечений')} за ${fmt(el)}`,lv,
+      `В среднем внимание держалось ${d1(avg)} с без отвлечения. Самый долгий отрезок: ${d1(mx)} с. Ориентир: меньше 15 секунд в среднем считается слабым уровнем, от 15 до 40 средним, больше 40 высоким.${done?'':' Упражнение завершено досрочно.'}`)}
+  q(P,'.start').onclick=()=>{dur=+opt('dd');lapses=[];q(P,'.cnt').textContent='0';hideRes(P);q(P,'.start').classList.add('hide');st.classList.remove('hide');full(st,true);t0=performance.now();running=true;spaceHandler=lapse;stopActive=()=>end(false);tick()};
+  st.addEventListener('pointerdown',e=>{if(e.target.classList.contains('stop'))return;lapse()});
+  q(P,'.stop').onclick=e=>{e.stopPropagation();end(false)};
+})();
+
+// 2 ВЕДЕНИЕ ТОЧКИ
+(function(){
+  const P='p2',st=q(P,'.stage'),cv=q(P,'canvas');let ctx,W,H,t0,dur,raf,running=false,flashes,nextF,curF,fa,ph,sp;
+  function pos(t){t*=sp;const a=(W/2-30),b=(H/2-40);
+    return [W/2+a*(Math.sin(t*0.70+ph[0])*0.55+Math.sin(t*1.13+ph[1])*0.30+Math.sin(t*1.91+ph[2])*0.15),
+            H/2+10+b*(Math.sin(t*0.61+ph[3])*0.55+Math.sin(t*1.07+ph[4])*0.30+Math.sin(t*1.73+ph[5])*0.15)]}
+  function frame(){const t=(performance.now()-t0)/1000;q(P,'.left').textContent=fmt(dur-t);if(t>=dur)return end(true);
+    if(!curF&&t>=nextF){curF={t,hit:false};flashes.push(curF)}
+    if(curF&&t-curF.t>0.45){curF=null;nextF=t+rnd(3,9)}
+    const [x,y]=pos(t);ctx.clearRect(0,0,W,H);ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fillStyle=curF?'#DF481A':'#F3EDE5';ctx.fill();raf=requestAnimationFrame(frame)}
+  function press(){if(!running)return;const t=(performance.now()-t0)/1000;const f=flashes.slice().reverse().find(f=>!f.hit&&t-f.t>=0&&t-f.t<=1.0);if(f){f.hit=true;f.rt=t-f.t}else fa++}
+  function end(done){if(!running)return;running=false;cancelAnimationFrame(raf);spaceHandler=null;stopActive=null;full(st,false);st.classList.add('hide');q(P,'.start').classList.remove('hide');
+    const el=Math.min(dur,(performance.now()-t0)/1000);if(el<10){hideRes(P);return}
+    const n=flashes.length,h=flashes.filter(f=>f.hit),rt=h.length?h.reduce((s,f)=>s+f.rt,0)/h.length:0,pc=n?h.length/n*100:0;
+    const lv=(pc>=90&&fa<=1)?2:(pc>=70&&fa<=4)?1:0;
+    showRes(P,`${h.length} из ${n} вспышек`,lv,`Пропущено: ${n-h.length}. Ложных нажатий: ${fa}. Средняя скорость реакции: ${h.length?Math.round(rt*1000)+' мс':'нет данных'}. Ориентир: высокий уровень, когда поймано не меньше 90 процентов вспышек и ложных нажатий не больше одного.${done?'':' Упражнение завершено досрочно.'}`)}
+  q(P,'.start').onclick=()=>{dur=+opt('td');sp=+opt('tv');hideRes(P);q(P,'.start').classList.add('hide');st.classList.remove('hide');full(st,true);
+    requestAnimationFrame(()=>{const f=fitCanvas(cv);ctx=f.x;W=f.w;H=f.h;ph=[0,1,2,3,4,5].map(()=>rnd(0,6.28));flashes=[];fa=0;curF=null;nextF=rnd(3,6);
+      t0=performance.now();running=true;spaceHandler=press;stopActive=()=>end(false);frame()})};
+  st.addEventListener('pointerdown',e=>{if(e.target.classList.contains('stop'))return;press()});
+  q(P,'.stop').onclick=e=>{e.stopPropagation();end(false)};
+})();
+
+// 3 ШУЛЬТЕ
+(function(){
+  const P='p3',g=q(P,'.grid');let seq,pos,t0,errs,mode;
+  const label=s=>s.r?`красное ${s.n}`:(mode==='rb'?`чёрное ${s.n}`:s.n);
+  const upd=()=>q(P,'.next').textContent=pos<seq.length?'Найдите: '+label(seq[pos]):'';
+  q(P,'.start').onclick=()=>{
+    mode=opt('sm');hideRes(P);errs=0;pos=0;seq=[];
+    if(mode==='5'){for(let i=1;i<=25;i++)seq.push({n:i,r:false});g.style.gridTemplateColumns='repeat(5,1fr)'}
+    else{for(let i=1;i<=25;i++){seq.push({n:i,r:false});if(i<=24)seq.push({n:25-i,r:true})}g.style.gridTemplateColumns='repeat(7,1fr)'}
+    g.innerHTML='';
+    shuffle(seq.slice()).forEach(c=>{const b=document.createElement('button');b.textContent=c.n;if(c.r)b.className='r';b.onclick=()=>{
+      if(pos>=seq.length||b.classList.contains('done'))return;const s=seq[pos];
+      if(s.n===c.n&&s.r===c.r){b.classList.add('done');pos++;upd();if(pos===seq.length)finish()}
+      else{errs++;b.classList.remove('err');void b.offsetWidth;b.classList.add('err')}};g.appendChild(b)});
+    q(P,'.start').textContent='Заново';t0=performance.now();upd()};
+  function finish(){const s=(performance.now()-t0)/1000;let lv,txt;
+    if(mode==='5'){lv=s<=30?2:s<=45?1:0;txt='Ориентир для таблицы 5 × 5: до 30 секунд высокий уровень, от 30 до 45 средний, дольше 45 слабый.'}
+    else{lv=s<=120?2:s<=200?1:0;txt='Ориентир для красно-чёрной таблицы: до 2 минут высокий уровень, от 2 до 3 минут 20 секунд средний, дольше слабый.'}
+    if(errs>3)lv=Math.max(0,lv-1);
+    showRes(P,`${d1(s)} с`,lv,`Ошибочных нажатий: ${errs}. ${txt} Больше трёх ошибок снижают уровень на одну ступень.`)}
+})();
+
+// 4 КОРРЕКТУРА
+(function(){
+  const P='p4',F=q(P,'.letters'),ALPH='АБВГДЕЖЗИЛМНОПСТУФХЦЧШЭЮЯ',T=new Set(['К','Р']),DUR=120;let letters,marks,t0,timer,running=false;
+  q(P,'.start').onclick=()=>{hideRes(P);letters=[];for(let i=0;i<480;i++)letters.push(Math.random()<.16?(Math.random()<.5?'К':'Р'):pick(ALPH));
+    marks=new Set();F.classList.remove('rev','hide');F.innerHTML=letters.map((l,i)=>`<span data-i="${i}">${l}</span>`).join('');
+    q(P,'.start').classList.add('hide');q(P,'.done').classList.remove('hide');t0=performance.now();running=true;stopActive=()=>finish(true);
+    timer=setInterval(()=>{const el=(performance.now()-t0)/1000;q(P,'.time').textContent='Осталось '+fmt(DUR-el);if(el>=DUR)finish()},250)};
+  F.addEventListener('click',e=>{if(!running)return;const s=e.target.closest('span');if(!s)return;const i=+s.dataset.i;if(marks.has(i)){marks.delete(i);s.classList.remove('m')}else{marks.add(i);s.classList.add('m')}});
+  q(P,'.done').onclick=()=>finish();
+  function finish(silent){if(!running)return;running=false;clearInterval(timer);stopActive=null;const el=Math.min(DUR,(performance.now()-t0)/1000);
+    q(P,'.done').classList.add('hide');q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Заново';q(P,'.time').textContent='';
+    if(silent){F.classList.add('hide');return}
+    const last=marks.size?Math.max(...marks):-1;let hit=0,miss=0,fa=0,tot=0;
+    F.querySelectorAll('span').forEach((s,i)=>{s.classList.remove('m');if(i>last){s.classList.add('after');return}
+      if(T.has(letters[i])){tot++;if(marks.has(i)){hit++;s.classList.add('hit')}else{miss++;s.classList.add('miss')}}else if(marks.has(i)){fa++;s.classList.add('fa')}});
+    F.classList.add('rev');const acc=tot?Math.round(hit/tot*100):0;const lv=(acc>=95&&fa<=2)?2:(acc>=85&&fa<=5)?1:0;
+    showRes(P,`${hit} из ${tot} найдено`,tot?lv:0,`Просмотрено знаков: ${last+1} за ${fmt(el)}. Пропущено: ${miss}, лишних отметок: ${fa}. Точность ${acc} процентов. Ориентир: высокий уровень при точности от 95 процентов и не больше двух лишних отметок, средний от 85 процентов. На поле пропуски обведены оранжевым, лишние отметки залиты оранжевым.`)}
+})();
+
+// 5 СТРУП
+(function(){
+  const P='p5',st=q(P,'.stage'),wEl=$('stWord'),bx=$('stBtns');
+  const C=[['красный','#e0432e'],['синий','#4f86f0'],['зелёный','#3fae5a'],['жёлтый','#f2c230']];
+  let trials,i,shownAt,rts,errs,running=false,t0,lock=false;
+  C.forEach((c,k)=>{const b=document.createElement('button');b.textContent=c[0];b.onclick=()=>answer(k);bx.appendChild(b)});
+  function nextTrial(){if(i>=trials.length)return end(true);const tr=trials[i];wEl.textContent=C[tr.w][0];wEl.style.color=C[tr.c][1];shownAt=performance.now();q(P,'.left').textContent=(i+1)+' / '+trials.length;lock=false}
+  function answer(k){if(!running||lock)return;lock=true;const tr=trials[i];if(k===tr.c){rts.push(performance.now()-shownAt);i++;wEl.textContent='';setTimeout(nextTrial,250)}
+    else{errs++;wEl.style.opacity=.25;setTimeout(()=>{wEl.style.opacity=1;lock=false},300)}}
+  function end(done){if(!running)return;running=false;stopActive=null;full(st,false);st.classList.add('hide');q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Заново';
+    if(!done||!rts.length){hideRes(P);return}
+    const avg=rts.reduce((a,b)=>a+b,0)/rts.length,tot=(performance.now()-t0)/1000;const lv=(errs<=2&&avg<1000)?2:(errs<=5&&avg<1500)?1:0;
+    showRes(P,`${Math.round(avg)} мс на карточку`,lv,`Ошибок: ${errs}. Всё упражнение заняло ${fmt(tot)}. Ориентир: высокий уровень, когда в среднем уходит меньше секунды на карточку и ошибок не больше двух; средний до полутора секунд и не больше пяти ошибок.`)}
+  q(P,'.start').onclick=()=>{hideRes(P);trials=[];for(let k=0;k<30;k++){const c=Math.floor(Math.random()*4);let w=c;if(Math.random()<.75){do{w=Math.floor(Math.random()*4)}while(w===c)}trials.push({c,w})}
+    i=0;rts=[];errs=0;q(P,'.start').classList.add('hide');st.classList.remove('hide');full(st,true);running=true;stopActive=()=>end(false);t0=performance.now();nextTrial()};
+  q(P,'.stop').onclick=()=>end(false);
+})();
+
+// 6 ЛИШНИЙ ЗНАК
+(function(){
+  const P='p6',g=q(P,'.odd');const PAIRS=[['Ш','Щ'],['И','Й'],['Е','Ё'],['Ь','Ъ'],['О','С'],['П','Н'],['З','Э'],['Ц','Щ'],['6','9'],['Р','Я'],['Л','Д'],['Б','В']];
+  const SIZES=[5,5,6,6,7,7,8,8,9,9];let round,t0,rt0,errs,times,running=false;
+  function build(){const n=SIZES[round],pr=pick(PAIRS),sw=Math.random()<.5,base=sw?pr[1]:pr[0],odd=sw?pr[0]:pr[1],k=Math.floor(Math.random()*n*n);
+    g.style.gridTemplateColumns=`repeat(${n},1fr)`;g.innerHTML='';
+    for(let j=0;j<n*n;j++){const b=document.createElement('button');b.textContent=j===k?odd:base;b.onclick=()=>{if(!running)return;
+      if(j===k){times.push((performance.now()-rt0)/1000);round++;if(round>=SIZES.length)return end();build()}else{errs++;b.classList.remove('err');void b.offsetWidth;b.classList.add('err')}};g.appendChild(b)}
+    q(P,'.next').textContent=`Поле ${round+1} из ${SIZES.length}`;rt0=performance.now()}
+  function end(){running=false;stopActive=null;g.innerHTML='';q(P,'.next').textContent='';q(P,'.start').textContent='Заново';
+    const tot=times.reduce((a,b)=>a+b,0),avg=tot/times.length;let lv=avg<=3?2:avg<=6?1:0;if(errs>3)lv=Math.max(0,lv-1);
+    showRes(P,`${d1(avg)} с на поле`,lv,`Все 10 полей заняли ${d1(tot)} с, ошибочных нажатий: ${errs}. Самое быстрое поле: ${d1(Math.min(...times))} с, самое долгое: ${d1(Math.max(...times))} с. Ориентир: до 3 секунд на поле высокий уровень, до 6 средний. Больше трёх ошибок снижают уровень на одну ступень.`)}
+  q(P,'.start').onclick=()=>{hideRes(P);round=0;errs=0;times=[];running=true;stopActive=()=>{running=false;g.innerHTML='';q(P,'.next').textContent='';stopActive=null};t0=performance.now();build()};
+})();
+
+// 7 СЧЁТ
+(function(){
+  const P='p7',st=q(P,'.stage'),cv=q(P,'canvas'),ask=q(P,'.ask'),inp=q(P,'input');let ctx,W,H,t0,raf,running=false,ev,blue,spd;const DUR=60;
+  function frame(){const t=(performance.now()-t0)/1000;q(P,'.left').textContent=fmt(DUR-t);if(t>=DUR)return end(true);
+    ctx.clearRect(0,0,W,H);ev.forEach(e=>{if(t>=e.t&&t<e.t+e.d){ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fillStyle=e.b?'#3d6fe0':'#d03a24';ctx.fill()}});raf=requestAnimationFrame(frame)}
+  function end(done){if(!running)return;running=false;cancelAnimationFrame(raf);stopActive=null;full(st,false);st.classList.add('hide');
+    if(done){ask.classList.remove('hide');inp.value='';inp.focus()}else q(P,'.start').classList.remove('hide')}
+  q(P,'.start').onclick=()=>{spd=+opt('cs');hideRes(P);ask.classList.add('hide');q(P,'.start').classList.add('hide');st.classList.remove('hide');full(st,true);
+    requestAnimationFrame(()=>{const f=fitCanvas(cv);ctx=f.x;W=f.w;H=f.h;ev=[];blue=0;let t=1.5;const gap=spd===1?[0.9,1.6]:[0.45,0.9],d=spd===1?0.55:0.35;
+      while(t<DUR-1){const b=Math.random()<.42;if(b)blue++;ev.push({t,d,b,x:rnd(40,W-40),y:rnd(60,H-70),r:rnd(12,22)});t+=rnd(gap[0],gap[1])}
+      t0=performance.now();running=true;stopActive=()=>end(false);frame()})};
+  q(P,'.stop').onclick=()=>end(false);
+  q(P,'.check').onclick=()=>{const v=parseInt(inp.value,10);if(isNaN(v))return;const diff=v-blue,ad=Math.abs(diff);ask.classList.add('hide');q(P,'.start').classList.remove('hide');q(P,'.start').textContent='Заново';
+    const lv=ad===0?2:ad<=2?1:0;
+    showRes(P,diff===0?'Точно':'Расхождение '+(diff>0?'+':'')+diff,lv,`Синих кругов было ${blue}, вы насчитали ${v}. Всего вспышек: ${ev.length}, темп: ${spd===1?'спокойно':'быстрее'}. Ориентир: точный счёт высокий уровень, ошибка на 1–2 средний, больше слабый.`)};
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')q(P,'.check').click()});
+})();
+})();
+</script>
+</body>
+</html>
