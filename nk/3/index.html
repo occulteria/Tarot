@@ -68,6 +68,7 @@ textarea{min-height:90px}
 .cert{border:1px solid var(--gold);border-radius:4px;padding:22px 18px;text-align:center;background:var(--panel)}
 .cert .big{font-family:var(--disp);font-size:54px;color:var(--gold);line-height:1}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--bone);color:var(--bg);font-family:var(--disp);letter-spacing:.06em;text-transform:uppercase;font-size:13px;padding:9px 14px;border-radius:3px;display:none;z-index:9}
+.cardrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}.cardrow figure{margin:0;flex:1 1 0;min-width:0;max-width:110px}.cardrow img{width:100%;border-radius:3px;border:1px solid var(--line);display:block}.cardrow figcaption{font-family:var(--disp);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);text-align:center;margin-top:3px;line-height:1.2}
 footer{margin-top:28px;color:var(--mute);font-size:13px;border-top:1px solid var(--line);padding-top:12px}
 @media (prefers-reduced-motion:reduce){.flip .in,.frag img,.meter i{transition:none}}
 </style>
@@ -89,6 +90,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function $(s,r){return (r||document).querySelector(s)}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function cap(t){t=String(t);return t.charAt(0).toUpperCase()+t.slice(1)}
 function rnd(a){return a[Math.floor(Math.random()*a.length)]}
 function toast(t){var x=$('#toast');x.textContent=t;x.style.display='block';clearTimeout(x._t);x._t=setTimeout(function(){x.style.display='none'},1600)}
 function starsOf(p){return p>=90?3:p>=70?2:p>=40?1:0}
@@ -144,7 +146,7 @@ T.sort=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.leng
 /* Вопрос с вариантами */
 T.mcq=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,st=frame(ti,el,items.length,items.length*10);
   function one(){if(k>=items.length)return st.finish();var it=items[k],ord=shuf(it.o.map(function(x,i){return i})),used=false;st.step(k);
-    $('#body').innerHTML='<div class="panel">'+(it.img?'<img src="'+img(it.img)+'" alt="Карта" style="display:block;width:150px;margin:0 auto 10px;border-radius:4px;border:1px solid var(--line)">':'')+'<p style="margin:0;font-size:18px">'+esc(it.q)+'</p></div>'+ord.map(function(i){return '<button class="opt" data-i="'+i+'">'+esc(it.o[i])+'</button>'}).join('')+'<div class="row"><button class="ghost" id="hint">Убрать неверный · −4</button></div><div id="fb"></div>';
+    $('#body').innerHTML='<div class="panel">'+(it.cards?'<div class="cardrow">'+it.cards.map(function(c,j){return '<figure><img src="'+img(c)+'" alt="'+esc(it.names?it.names[j]:'Карта')+'">'+(it.names?'<figcaption>'+esc(it.names[j])+'</figcaption>':'')+'</figure>'}).join('')+'</div>':'')+(it.img?'<img src="'+img(it.img)+'" alt="Карта" style="display:block;width:150px;margin:0 auto 10px;border-radius:4px;border:1px solid var(--line)">':'')+'<p style="margin:0;font-size:18px">'+esc(it.q)+'</p></div>'+ord.map(function(i){return '<button class="opt" data-i="'+i+'">'+esc(cap(it.o[i]))+'</button>'}).join('')+'<div class="row"><button class="ghost" id="hint">Убрать неверный · −4</button></div><div id="fb"></div>';
     $('#hint').onclick=function(){var w=ord.filter(function(i){return i!==it.a});var b=el.querySelector('[data-i="'+rnd(w)+'"]');b.disabled=true;b.classList.add('done');used=true;this.disabled=true};
     el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){var ok=+b.dataset.i===it.a;el.querySelectorAll('#body .opt').forEach(function(x){x.disabled=true;if(+x.dataset.i===it.a)x.classList.add('ok')});if(!ok)b.classList.add('bad');st.add(ok?(used?6:10):0);
       $('#fb').innerHTML='<p class="verdict '+(ok?'ok':'bad')+'">'+(ok?'Верно':'Неверно')+'.</p>'+(it.x?'<div class="expl">'+esc(it.x)+'</div>':'')+'<button class="main" id="nx">Дальше</button>';$('#nx').onclick=function(){k++;one()}}})}
