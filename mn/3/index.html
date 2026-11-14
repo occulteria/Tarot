@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Таро Манара. Тренажёры урока 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Ночная бумага Occulteria, костяной текст, оранжевый сигнал. Одна колонка под телефон: список тренажёров, внутри одно задание на экран */
+  --bg:#141115; --panel:#1d191d; --panel2:#272127; --line:#3d3439; --ink:#ede5da; --mute:#b6aa9d;
+  --acc:#e2622b; --bone:#d9c8a7; --ok:#74b47f; --bad:#d9573f; --gold:#e3b04b;
+  --disp:'Oswald','Arial Narrow',sans-serif; --body:'PT Serif',Georgia,serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body{padding:0 16px 60px;max-width:720px;margin:0 auto}
+h1,h2,h3{font-family:var(--disp);font-weight:500;letter-spacing:.02em;text-wrap:balance;margin:0}
+h1{font-size:26px;line-height:1.12;text-transform:uppercase}
+h2{font-size:21px;line-height:1.2;text-transform:uppercase;margin:2px 0 10px}
+h3{font-size:14px;text-transform:uppercase;letter-spacing:.1em;color:var(--bone)}
+.kick{font-family:var(--disp);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc)}
+header{padding:18px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.score{font-family:var(--disp);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);font-variant-numeric:tabular-nums}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:15px;margin-bottom:12px}
+.mute{color:var(--mute)} .small{font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font-family:var(--disp);font-size:14px;letter-spacing:.07em;text-transform:uppercase;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:11px 14px;cursor:pointer;min-height:44px}
+button.main{background:var(--acc);border-color:var(--acc);color:#160f0b}
+button.ghost{background:none}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--bone);outline-offset:2px}
+.opt{display:block;width:100%;text-align:left;font-family:var(--body);font-size:16px;letter-spacing:0;text-transform:none;line-height:1.4;padding:12px 14px;margin:0 0 8px}
+.opt.ok{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
+.opt.bad{border-color:var(--bad);box-shadow:inset 4px 0 0 var(--bad)}
+.opt.sel{border-color:var(--bone);box-shadow:inset 4px 0 0 var(--bone)}
+.opt.done{opacity:.55}
+.verdict{font-family:var(--disp);letter-spacing:.05em;text-transform:uppercase;font-size:15px;margin:4px 0}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+.expl{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:8px 0;font-size:16px}
+.list{display:grid;gap:10px}
+.tr{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px}
+.tr .n{font-family:var(--disp);font-size:24px;color:var(--acc);text-align:center}
+.tr b{font-family:var(--disp);font-weight:500;font-size:16px;text-transform:uppercase;letter-spacing:.04em;display:block}
+.tr span{font-size:14px;color:var(--mute);display:block;line-height:1.35}
+.stars{font-size:16px;letter-spacing:2px;color:#4a4046;white-space:nowrap}
+.stars i{font-style:normal}.stars i.on{color:var(--gold)}
+.meter{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin:8px 0}
+.meter i{display:block;height:100%;background:var(--acc);transition:width .4s}
+.seq{display:grid;gap:6px;margin:0 0 12px;padding:0;list-style:none}
+.seq li{display:grid;grid-template-columns:64px 1fr;gap:10px;background:var(--panel2);border:1px solid var(--ok);border-radius:3px;padding:8px 10px;font-size:15px}
+.seq li b{font-family:var(--disp);font-weight:500;color:var(--gold)}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pairs .opt{margin:0;font-size:15px;min-height:56px}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px}
+.frag{width:220px;aspect-ratio:328/600;overflow:hidden;border:1px solid var(--line);border-radius:4px;margin:0 auto 10px;background:#000}
+.frag img{width:100%;height:100%;object-fit:cover;transition:transform .7s ease}
+.flip{perspective:900px;margin-bottom:12px}
+.flip .in{position:relative;transition:transform .6s;transform-style:preserve-3d;min-height:150px}
+.flip.open .in{transform:rotateY(180deg)}
+.flip .side{position:absolute;inset:0;backface-visibility:hidden;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;overflow:auto}
+.flip .back{transform:rotateY(180deg);border-color:var(--bone)}
+input[type=text],textarea{width:100%;font-family:var(--body);font-size:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:11px 12px}
+textarea{min-height:90px}
+.cert{border:1px solid var(--gold);border-radius:4px;padding:22px 18px;text-align:center;background:var(--panel)}
+.cert .big{font-family:var(--disp);font-size:54px;color:var(--gold);line-height:1}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--bone);color:var(--bg);font-family:var(--disp);letter-spacing:.06em;text-transform:uppercase;font-size:13px;padding:9px 14px;border-radius:3px;display:none;z-index:9}
+.cardrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}.cardrow figure{margin:0;flex:1 1 0;min-width:0;max-width:110px}.cardrow img{width:100%;border-radius:3px;border:1px solid var(--line);display:block}.cardrow figcaption{font-family:var(--disp);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);text-align:center;margin-top:3px;line-height:1.2}
+footer{margin-top:28px;color:var(--mute);font-size:13px;border-top:1px solid var(--line);padding-top:12px}
+@media (prefers-reduced-motion:reduce){.flip .in,.frag img,.meter i{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="kick">Occulteria · Таро Манара</div>
+  <h1 id="ttl">Тренажёры урока</h1>
+</header>
+<main id="app"><p class="mute">Загружаю тренажёры…</p></main>
+<div class="toast" id="toast"></div>
+<footer>Рисунки карт: Мило Манара, Manara Erotic Tarot, Lo Scarabeo (2000). Баллы и прогресс хранятся в этом браузере.</footer>
+<script>
+(function(){
+'use strict';
+var D=null,CI=null,KEY='occ-mn-'+'3',S={best:{},name:'',draft:{}};
+try{var r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(s,r){return (r||document).querySelector(s)}
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function cap(t){t=String(t);return t.charAt(0).toUpperCase()+t.slice(1)}
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function toast(t){var x=$('#toast');x.textContent=t;x.style.display='block';clearTimeout(x._t);x._t=setTimeout(function(){x.style.display='none'},1600)}
+function starsOf(p){return p>=90?3:p>=70?2:p>=40?1:0}
+function starsHtml(n){var h='';for(var i=0;i<3;i++)h+='<i class="'+(i<n?'on':'')+'">★</i>';return '<span class="stars" aria-label="Звёзд: '+n+' из 3">'+h+'</span>'}
+function lessonScore(){var t=D.trainers,s=0;t.forEach(function(x,i){s+=(S.best[i]||0)});return Math.round(s/t.length)}
+function img(k){return (CI&&CI[k])||k}
+
+/* Общая рамка тренажёра: заголовок, счёт, прогресс, финал с баллами */
+function frame(ti,el,total,maxPts){
+  var tr=D.trainers[ti],st={pts:0,max:maxPts,i:0,n:total};
+  el.innerHTML='<div class="top"><button class="ghost" id="back">← Все тренажёры</button><span class="score" id="sc">0 баллов</span></div><div class="kick">Тренажёр '+(ti+1)+' из '+D.trainers.length+'</div><h2>'+esc(tr.title)+'</h2>'+(tr.intro?'<p class="small mute">'+esc(tr.intro)+'</p>':'')+'<div class="meter"><i id="pm" style="width:0"></i></div><div id="body"></div>';
+  $('#back').onclick=function(){go('')};
+  st.add=function(p){st.pts=Math.max(0,st.pts+p);$('#sc').textContent=st.pts+' '+word(st.pts)};
+  st.step=function(i){st.i=i;$('#pm').style.width=Math.round(i*100/st.n)+'%'};
+  st.finish=function(extra){var pct=Math.round(st.pts*100/st.max);if(pct>100)pct=100;var old=S.best[ti]||0;if(pct>old){S.best[ti]=pct;save()}
+    st.step(st.n);var nx=ti+1<D.trainers.length;
+    $('#body').innerHTML='<div class="panel" style="text-align:center"><div class="kick">Тренажёр пройден</div><p style="font-size:34px;font-family:var(--disp);margin:6px 0;color:var(--gold)">'+st.pts+' из '+st.max+'</p>'+starsHtml(starsOf(pct))+'<p class="small mute">'+pct+'%'+(old>pct?' · лучший результат '+old+'%':'')+'</p>'+(extra||'')+'</div><div class="row"><button class="main" id="nx">'+(nx?'Следующий тренажёр':'Итог урока')+'</button><button id="rp">Пройти ещё раз</button></div>';
+    $('#nx').onclick=function(){go(nx?'t'+(ti+2):'final')};$('#rp').onclick=function(){render()}};
+  return st}
+function word(n){var a=n%10,b=n%100;return (a===1&&b!==11)?'балл':(a>=2&&a<=4&&(b<10||b>=20))?'балла':'баллов'}
+
+var T={};
+/* Порядок: тапаете события по очереди */
+T.order=function(ti,el,tr){var items=tr.items,pool=shuf(items.map(function(x,i){return i})),done=[],miss=0,st=frame(ti,el,items.length,items.length*10);
+  function draw(){$('#body').innerHTML='<ol class="seq">'+done.map(function(i){return '<li><b>'+esc(items[i].k)+'</b><span>'+esc(items[i].t)+'</span></li>'}).join('')+'</ol>'+(done.length<items.length?'<p class="small mute">Что было '+(done.length?'дальше':'раньше всего')+'?</p>'+pool.filter(function(i){return done.indexOf(i)<0}).map(function(i){return '<button class="opt" data-i="'+i+'">'+esc(items[i].t)+'</button>'}).join('')+'<div class="row"><button id="hint" class="ghost">Подсказка · −5</button></div><div id="fb"></div>':'');
+    el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){var i=+b.dataset.i,need=done.length;
+      if(i===need){done.push(i);st.add(miss?5:10);miss=0;st.step(done.length);if(done.length===items.length){draw();st.finish('<p class="small">'+esc(tr.outro||'Порядок восстановлен.')+'</p>')}else draw()}
+      else{miss++;b.classList.add('bad');$('#fb').innerHTML='<p class="verdict bad">Не сейчас.</p>'+(items[i].x?'<div class="expl">'+esc(items[i].x)+'</div>':'')}}});
+    var h=$('#hint');if(h)h.onclick=function(){st.add(-5);toast('Следующее: '+items[done.length].k);h.disabled=true}}
+  draw()};
+/* Да / нет: факт или легенда и т. п. */
+T.tf=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,st=frame(ti,el,items.length,items.length*10);
+  function one(){if(k>=items.length)return st.finish();var it=items[k];st.step(k);
+    $('#body').innerHTML='<div class="panel"><p style="margin:0;font-size:18px">'+esc(it.t)+'</p></div><div class="row">'+tr.labels.map(function(l,i){return '<button class="opt" style="flex:1 1 140px;text-align:center" data-a="'+i+'">'+esc(l)+'</button>'}).join('')+'</div><div id="fb"></div>';
+    el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){var ok=+b.dataset.a===it.a;el.querySelectorAll('#body .opt').forEach(function(x){x.disabled=true;if(+x.dataset.a===it.a)x.classList.add('ok')});if(!ok)b.classList.add('bad');st.add(ok?10:0);
+      $('#fb').innerHTML='<p class="verdict '+(ok?'ok':'bad')+'">'+(ok?'Верно':'Неверно')+'. '+esc(tr.labels[it.a])+'.</p><div class="expl">'+esc(it.x)+'</div><button class="main" id="nx">Дальше</button>';$('#nx').onclick=function(){k++;one()}}})}
+  one()};
+/* Пары: слева и справа */
+T.match=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),L=shuf(items.map(function(x,i){return i})),R=shuf(items.map(function(x,i){return i})),sel=null,done={},errs=0,st=frame(ti,el,items.length,items.length*10);
+  function draw(){$('#body').innerHTML='<p class="small mute">'+esc(tr.hint||'Нажмите на элемент слева, потом на его пару справа.')+'</p><div class="pairs"><div>'+L.map(function(i){return '<button class="opt'+(done[i]?' done ok':'')+(sel===i?' sel':'')+'" data-l="'+i+'" style="margin-bottom:8px"'+(done[i]?' disabled':'')+'>'+esc(items[i].l)+'</button>'}).join('')+'</div><div>'+R.map(function(i){return '<button class="opt'+(done[i]?' done ok':'')+'" data-r="'+i+'" style="margin-bottom:8px"'+(done[i]?' disabled':'')+'>'+esc(items[i].r)+'</button>'}).join('')+'</div></div><div id="fb"></div>';
+    el.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){sel=+b.dataset.l;draw()}});
+    el.querySelectorAll('[data-r]').forEach(function(b){b.onclick=function(){if(sel===null){toast('Сначала выберите слева');return}var r=+b.dataset.r;
+      if(r===sel){done[r]=1;st.add(Math.max(4,10-errs*3));errs=0;var x=items[r].x;sel=null;var n=Object.keys(done).length;st.step(n);draw();if(x)$('#fb').innerHTML='<div class="expl"><b>'+esc(items[r].l)+'.</b> '+esc(x)+'</div>';if(n===items.length)setTimeout(function(){st.finish()},700)}
+      else{errs++;b.classList.add('bad');setTimeout(function(){b.classList.remove('bad')},500)}}})}
+  draw()};
+/* Корзины */
+T.sort=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,st=frame(ti,el,items.length,items.length*10);
+  function one(){if(k>=items.length)return st.finish();var it=items[k];st.step(k);
+    $('#body').innerHTML='<div class="panel"><div class="kick">'+esc(tr.ask||'Куда это отнести?')+'</div>'+(it.img?'<img src="'+img(it.img)+'" alt="Карта" style="display:block;width:150px;margin:8px auto;border-radius:4px;border:1px solid var(--line)">':'')+(it.t?'<p style="margin:4px 0 0;font-size:18px">'+esc(it.t)+'</p>':'')+'</div><div class="cats">'+tr.cats.map(function(c,i){return '<button data-c="'+i+'">'+esc(c)+'</button>'}).join('')+'</div><div id="fb"></div>';
+    el.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){var ok=+b.dataset.c===it.c;el.querySelectorAll('[data-c]').forEach(function(x){x.disabled=true;if(+x.dataset.c===it.c)x.classList.add('opt','ok')});if(!ok)b.classList.add('opt','bad');st.add(ok?10:0);
+      $('#fb').innerHTML='<p class="verdict '+(ok?'ok':'bad')+'">'+(ok?'Верно':'Это '+esc(tr.cats[it.c]))+'.</p>'+(it.x?'<div class="expl">'+esc(it.x)+'</div>':'')+'<button class="main" id="nx">Дальше</button>';$('#nx').onclick=function(){k++;one()}}})}
+  one()};
+/* Вопрос с вариантами */
+T.mcq=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,st=frame(ti,el,items.length,items.length*10);
+  function one(){if(k>=items.length)return st.finish();var it=items[k],ord=shuf(it.o.map(function(x,i){return i})),used=false;st.step(k);
+    $('#body').innerHTML='<div class="panel">'+(it.cards?'<div class="cardrow">'+it.cards.map(function(c,j){return '<figure><img src="'+img(c)+'" alt="'+esc(it.names?it.names[j]:'Карта')+'">'+(it.names?'<figcaption>'+esc(it.names[j])+'</figcaption>':'')+'</figure>'}).join('')+'</div>':'')+(it.img?'<img src="'+img(it.img)+'" alt="Карта" style="display:block;width:150px;margin:0 auto 10px;border-radius:4px;border:1px solid var(--line)">':'')+'<p style="margin:0;font-size:18px">'+esc(it.q)+'</p></div>'+ord.map(function(i){return '<button class="opt" data-i="'+i+'">'+esc(cap(it.o[i]))+'</button>'}).join('')+'<div class="row"><button class="ghost" id="hint">Убрать неверный · −4</button></div><div id="fb"></div>';
+    $('#hint').onclick=function(){var w=ord.filter(function(i){return i!==it.a});var b=el.querySelector('[data-i="'+rnd(w)+'"]');b.disabled=true;b.classList.add('done');used=true;this.disabled=true};
+    el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){var ok=+b.dataset.i===it.a;el.querySelectorAll('#body .opt').forEach(function(x){x.disabled=true;if(+x.dataset.i===it.a)x.classList.add('ok')});if(!ok)b.classList.add('bad');st.add(ok?(used?6:10):0);
+      $('#fb').innerHTML='<p class="verdict '+(ok?'ok':'bad')+'">'+(ok?'Верно':'Неверно')+'.</p>'+(it.x?'<div class="expl">'+esc(it.x)+'</div>':'')+'<button class="main" id="nx">Дальше</button>';$('#nx').onclick=function(){k++;one()}}})}
+  one()};
+/* Фрагмент карты */
+T.frag=function(ti,el,tr){var pool=shuf(D.cards).slice(0,tr.n||8),k=0,st=frame(ti,el,pool.length,pool.length*4);
+  function one(){if(k>=pool.length)return st.finish('<p class="small">Четыре балла за карту без подсказок.</p>');var c=pool[k],steps=[3,2.2,1.5,1],z=0,ox=20+Math.random()*60,oy=15+Math.random()*70;st.step(k);
+    var opts=shuf([c].concat(shuf(D.cards.filter(function(x){return x.n!==c.n})).slice(0,3)));
+    $('#body').innerHTML='<div class="frag"><img id="fi" src="'+img(c.img)+'" alt="Фрагмент карты"></div><p class="small mute" id="fs" style="text-align:center"></p>'+opts.map(function(o){return '<button class="opt" data-n="'+esc(o.n)+'">'+esc(o.n)+'</button>'}).join('')+'<div id="fb"></div>';
+    function zz(){var i=$('#fi');i.style.transformOrigin=ox+'% '+oy+'%';i.style.transform='scale('+steps[z]+')';$('#fs').textContent=z<3?'Подсказок использовано: '+z:'Карта целиком'}zz();
+    el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){if(b.dataset.n===c.n){b.classList.add('ok');el.querySelectorAll('#body .opt').forEach(function(x){x.disabled=true});st.add(4-z);z=3;zz();
+      $('#fb').innerHTML='<p class="verdict ok">Верно · +'+(4-Math.min(z,3))+'</p>'+(c.pic?'<div class="expl">'+esc(c.pic)+'</div>':'')+'<button class="main" id="nx">Следующая карта</button>';$('#nx').onclick=function(){k++;one()}}
+      else{b.classList.add('bad');b.disabled=true;if(z<3){z++;zz()}}}})}
+  one()};
+/* Карточки с ответом: самооценка */
+T.flash=function(ti,el,tr){var items=tr.items,k=0,st=frame(ti,el,items.length,items.length*10);
+  function one(){if(k>=items.length)return st.finish();var it=items[k];st.step(k);
+    $('#body').innerHTML='<div class="flip" id="fl"><div class="in"><div class="side"><div class="kick">Вопрос '+(k+1)+'</div><p style="margin:6px 0 0;font-size:18px">'+esc(it.q)+'</p></div><div class="side back"><div class="kick">Ответ</div><p style="margin:6px 0 0">'+esc(it.a)+'</p></div></div></div><textarea id="ta" aria-label="Ваш ответ" placeholder="Сначала ответьте своими словами">'+esc(S.draft[ti+'-'+k]||'')+'</textarea><div class="row" style="margin-top:10px"><button class="main" id="sh">Перевернуть карточку</button></div><div id="fb"></div>';
+    var fl=$('#fl'),h=fl.querySelector('.back').scrollHeight;fl.querySelector('.in').style.minHeight=Math.max(150,h+10,fl.querySelector('.side').scrollHeight+10)+'px';
+    $('#ta').oninput=function(){S.draft[ti+'-'+k]=this.value;save()};
+    $('#sh').onclick=function(){fl.classList.add('open');this.remove();$('#fb').innerHTML='<p class="small mute">Совпал ли ваш ответ с ключом?</p><div class="row"><button class="main" id="y">Да · +10</button><button id="p">Частично · +5</button><button id="n">Нет</button></div>';
+      function nx(p){st.add(p);k++;one()}$('#y').onclick=function(){nx(10)};$('#p').onclick=function(){nx(5)};$('#n').onclick=function(){nx(0)}}}
+  one()};
+
+
+/* Сборка: выберите нужные элементы из набора */
+T.pick=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,st=frame(ti,el,items.length,items.length*10);
+  function one(){if(k>=items.length)return st.finish();var it=items[k],pool=shuf(it.good.concat(it.bad)),on={};st.step(k);
+    $('#body').innerHTML='<div class="panel"><div class="kick">'+esc(tr.ask||'Запрос')+'</div><p style="margin:4px 0 0;font-size:18px">'+esc(it.q)+'</p></div><p class="small mute">Выберите '+it.good.length+' '+esc(tr.unit||'позиции')+'. Лишние снимают баллы.</p>'+pool.map(function(p,i){return '<button class="opt" data-i="'+i+'" aria-pressed="false">'+esc(cap(p))+'</button>'}).join('')+'<button class="main" id="ok">Проверить</button><div id="fb"></div>';
+    el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){var i=b.dataset.i;on[i]=!on[i];b.classList.toggle('sel',!!on[i]);b.setAttribute('aria-pressed',!!on[i])}});
+    $('#ok').onclick=function(){var hit=0,miss=0;pool.forEach(function(p,i){var g=it.good.indexOf(p)>=0,b=el.querySelector('[data-i="'+i+'"]');b.disabled=true;b.classList.remove('sel');if(g)b.classList.add('ok');if(on[i]&&g)hit++;if(on[i]&&!g){miss++;b.classList.add('bad')}});
+      var p=Math.max(0,Math.round(10*(hit-miss)/it.good.length));st.add(p);this.remove();
+      $('#fb').innerHTML='<p class="verdict '+(p>=7?'ok':'bad')+'">Совпало '+hit+' из '+it.good.length+(miss?', лишних '+miss:'')+' · +'+p+'</p>'+(it.x?'<div class="expl">'+esc(it.x)+'</div>':'')+'<button class="main" id="nx">Дальше</button>';$('#nx').onclick=function(){k++;one()}}}
+  one()};
+/* Слепой расклад: вопросы к позициям до карт */
+T.blind=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,st=frame(ti,el,items.length,items.length*10);
+  function one(){if(k>=items.length)return st.finish('<p class="small">Баллы даются за вопросы ко всем позициям до открытия карт.</p>');var it=items[k];st.step(k);
+    $('#body').innerHTML='<div class="panel"><div class="kick">'+esc(it.name)+'</div><p style="margin:4px 0 0;font-size:18px">'+esc(it.q)+'</p></div><p class="small mute">Карты лежат рубашкой вверх. Сначала напишите, что именно спросит каждая позиция в этом случае.</p>'+it.pos.map(function(p,i){return '<label class="small" for="bq'+i+'" style="display:block;margin:10px 0 4px"><b style="color:var(--acc);font-family:var(--disp)">'+(i+1)+'.</b> '+esc(p)+'</label><textarea id="bq'+i+'" style="min-height:56px"></textarea>'}).join('')+'<div class="cardrow" style="margin-top:12px">'+it.pos.map(function(p,i){return '<figure><img src="'+img('cards/back.jpg')+'" alt="Закрытая карта" data-p="'+(i+1)+'"><figcaption>'+(i+1)+'</figcaption></figure>'}).join('')+'</div><button class="main" id="op">Открыть карты</button><div id="fb"></div>';
+    $('#op').onclick=function(){var n=it.pos.filter(function(p,i){return ($('#bq'+i).value||'').trim().length>=8}).length,pts=Math.round(10*n/it.pos.length);st.add(pts);this.remove();
+      it.cards.forEach(function(c){var im=el.querySelector('[data-p="'+c[0]+'"]');if(im){im.src=img(c[2]);im.alt=c[1];im.nextSibling.textContent=c[0]+'. '+c[1]}});
+      $('#fb').innerHTML='<p class="verdict '+(pts>=8?'ok':'bad')+'">Вопросы написаны к '+n+' позициям из '+it.pos.length+' · +'+pts+'</p><div class="expl"><b>Как читать.</b> '+esc(it.read)+'</div><div class="expl"><b>Пример чтения.</b> '+esc(it.ex)+'</div><p class="small mute">Сравните свои вопросы с примером. Если вопрос пришлось менять после карт, он был поставлен слишком широко.</p><button class="main" id="nx">Дальше</button>';$('#nx').onclick=function(){k++;one()}}}
+  one()};
+
+/* Расследование: улики стоят баллов */
+T.inv=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,st=frame(ti,el,items.length,items.length*10);
+  function one(){if(k>=items.length)return st.finish('<p class="small">Каждая открытая улика стоит баллов. Ответ без лишних улик дороже.</p>');var it=items[k],spent=0,open=[true].concat(it.clues.slice(1).map(function(){return false})),ord=shuf(it.o.map(function(x,i){return i})),done=false;st.step(k);
+    function draw(){$('#body').innerHTML='<div class="panel"><div class="kick">'+esc(tr.ask||'Дело')+' '+(k+1)+'</div><p style="margin:4px 0 0;font-size:18px">'+esc(it.q)+'</p></div>'+it.clues.map(function(c,j){return open[j]?'<div class="expl" style="margin:8px 0"><b>'+esc(c.k)+'.</b> '+(c.img?'<img src="'+img(c.img)+'" alt="'+esc(c.t)+'" style="display:block;width:110px;margin:6px 0;border-radius:4px;border:1px solid var(--line)">':'')+esc(cap(c.t))+'</div>':'<button class="ghost" data-c="'+j+'" style="display:block;width:100%;margin:6px 0;text-align:left"'+(done?' disabled':'')+'>Открыть: '+esc(c.k)+' · −'+c.cost+'</button>'}).join('')+'<p class="small mute">Осталось в деле: '+Math.max(2,10-spent)+' баллов. Ваш вывод:</p>'+ord.map(function(i){return '<button class="opt" data-i="'+i+'"'+(done?' disabled':'')+'>'+esc(cap(it.o[i]))+'</button>'}).join('')+'<div id="fb"></div>';
+      el.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){var j=+b.dataset.c;open[j]=true;spent+=it.clues[j].cost;draw()}});
+      el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){var ok=+b.dataset.i===it.a,p=ok?Math.max(2,10-spent):0;done=true;open=open.map(function(){return true});st.add(p);draw();
+        el.querySelectorAll('#body .opt').forEach(function(x){if(+x.dataset.i===it.a)x.classList.add('ok');if(x.dataset.i===b.dataset.i&&!ok)x.classList.add('bad')});
+        $('#fb').innerHTML='<p class="verdict '+(ok?'ok':'bad')+'">'+(ok?'Верно · +'+p:'Неверно. Ответ: '+esc(it.o[it.a]))+'</p>'+(it.x?'<div class="expl">'+esc(it.x)+'</div>':'')+'<button class="main" id="nx">Следующее дело</button>';$('#nx').onclick=function(){k++;one()}}})}
+    draw()}
+  one()};
+/* Кабинет: клиент, карты, несколько решений подряд */
+T.case=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.length),k=0,tot=items.reduce(function(a,x){return a+x.steps.length},0),st=frame(ti,el,items.length,tot*10);
+  function one(){if(k>=items.length)return st.finish();var it=items[k],s=0,log=[];st.step(k);
+    function draw(){var sp=it.steps[s],ord=shuf(sp.o.map(function(x,i){return i}));
+      $('#body').innerHTML='<div class="panel"><div class="kick">'+esc(tr.ask||'Клиент')+' · '+esc(it.t)+'</div><p style="margin:4px 0 0;font-size:18px">'+esc(it.src)+'</p></div>'+(it.cards?'<div class="cardrow">'+it.cards.map(function(c,j){return '<figure><img src="'+img(c)+'" alt="'+esc(it.names[j])+'"><figcaption>'+esc(it.names[j])+'</figcaption></figure>'}).join('')+'</div>':'')+log.join('')+'<div class="kick" style="margin-top:12px">Шаг '+(s+1)+' из '+it.steps.length+'</div><p style="font-size:17px;margin:4px 0 8px">'+esc(sp.q)+'</p>'+ord.map(function(i){return '<button class="opt" data-i="'+i+'">'+esc(cap(sp.o[i]))+'</button>'}).join('')+'<div id="fb"></div>';
+      el.querySelectorAll('#body .opt').forEach(function(b){b.onclick=function(){var ok=+b.dataset.i===sp.a;el.querySelectorAll('#body .opt').forEach(function(x){x.disabled=true;if(+x.dataset.i===sp.a)x.classList.add('ok')});if(!ok)b.classList.add('bad');st.add(ok?10:0);
+        $('#fb').innerHTML='<p class="verdict '+(ok?'ok':'bad')+'">'+(ok?'Верно':'Неверно')+'.</p>'+(sp.x?'<div class="expl">'+esc(sp.x)+'</div>':'')+'<button class="main" id="nx">'+(s+1<it.steps.length?'Следующий шаг':'Следующий клиент')+'</button>';
+        $('#nx').onclick=function(){log.push('<div class="expl" style="margin:6px 0"><b>'+esc(sp.k||('Шаг '+(s+1)))+'.</b> '+esc(sp.o[sp.a])+'</div>');s++;if(s<it.steps.length)draw();else{k++;one()}}}})}
+    draw()}
+  one()};
+
+/* Главная и итог */
+function home(el){var sc=lessonScore();
+  el.innerHTML='<div class="panel"><div class="row" style="justify-content:space-between"><h3>Урок '+D.lesson+' · '+esc(D.title)+'</h3><span class="score">'+sc+' из 100</span></div><div class="meter"><i style="width:'+sc+'%"></i></div><p class="small mute" style="margin:0">'+esc(D.about||'')+'</p></div><div class="list">'+D.trainers.map(function(t,i){var b=S.best[i]||0;return '<a class="tr" href="#t'+(i+1)+'"><span class="n">'+(i+1)+'</span><span><b>'+esc(t.title)+'</b><span>'+esc(t.desc)+'</span></span>'+starsHtml(starsOf(b))+'</a>'}).join('')+'</div><div class="row" style="margin-top:14px"><button class="main" id="fin">Итог урока</button></div>';
+  $('#fin').onclick=function(){go('final')}}
+function final(el){var sc=lessonScore(),done=D.trainers.filter(function(t,i){return S.best[i]}).length,all=D.trainers.length;
+  var lvl=sc>=90?'Мастер':sc>=75?'Диагност':sc>=55?'Практик':'Начинающий';
+  el.innerHTML='<div class="top"><button class="ghost" id="back">← Все тренажёры</button></div><div class="cert"><div class="kick">'+(done===all?'Урок пройден':'Пройдено тренажёров: '+done+' из '+all)+'</div><h2 style="margin-top:8px">Урок '+D.lesson+'. '+esc(D.title)+'</h2><p class="mute small" id="nm">'+esc(S.name||'Впишите имя ниже')+'</p><div class="big">'+sc+'</div><p class="small mute">баллов из 100 · уровень «'+lvl+'»</p>'+starsHtml(starsOf(sc))+'</div><label class="small mute" for="nmi" style="display:block;margin:14px 0 6px">Ваше имя для итога</label><input type="text" id="nmi" value="'+esc(S.name)+'" autocomplete="name"><div class="row" style="margin-top:10px"><button class="main" id="cp">Скопировать результат для куратора</button></div><div class="panel" style="margin-top:12px"><h3>По тренажёрам</h3>'+D.trainers.map(function(t,i){return '<p class="small" style="margin:6px 0">'+(i+1)+'. '+esc(t.title)+' · '+(S.best[i]||0)+'%</p>'}).join('')+'</div>';
+  $('#back').onclick=function(){go('')};$('#nmi').oninput=function(){S.name=this.value;save();$('#nm').textContent=this.value||'Впишите имя ниже'};
+  $('#cp').onclick=function(){var t='Occulteria · Таро Манара\nУрок '+D.lesson+'. '+D.title+'\n'+(S.name||'Ученик')+': '+sc+' из 100, уровень «'+lvl+'»\n'+D.trainers.map(function(x,i){return (i+1)+'. '+x.title+': '+(S.best[i]||0)+'%'}).join('\n');
+    try{navigator.clipboard.writeText(t).then(function(){toast('Скопировано')},function(){showTxt(t)})}catch(e){showTxt(t)}}}
+function showTxt(t){var a=document.createElement('textarea');a.value=t;a.readOnly=true;$('#app').appendChild(a);a.select();toast('Выделите и скопируйте текст')}
+
+function go(h){if(location.hash.slice(1)!==h)location.hash=h;else render()}
+function render(){var h=location.hash.slice(1),el=$('#app');window.scrollTo(0,0);
+  if(h==='final')return final(el);var m=/^t(\d+)$/.exec(h);
+  if(m&&D.trainers[m[1]-1]){var ti=m[1]-1;return T[D.trainers[ti].type](ti,el,D.trainers[ti])}
+  home(el)}
+window.addEventListener('hashchange',render);
+Promise.all([fetch('data.json').then(function(r){return r.json()}),fetch('../cards.json').then(function(r){return r.json()}).catch(function(){return null})]).then(function(x){D=x[0];CI=x[1];
+  $('#ttl').textContent='Тренажёры урока '+D.lesson;document.title='Тренажёры урока '+D.lesson;render()}).catch(function(){$('#app').innerHTML='<div class="panel">Не удалось загрузить тренажёры. Обновите страницу.</div>'});
+})();
+</script>
+</body>
+</html>
