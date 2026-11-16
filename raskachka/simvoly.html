@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Тренажёр «Скрытые символы». Раскачка восприятия. Occulteria</title>
+<style>
+:root{--light:#F3EDE5;--dark:#161616;--acc:#DF481A;--mid:#8a8378;--line:#d9d0c4;--paper:#fff9f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:var(--dark);font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.45}
+body{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:normal;font-size:40px;line-height:1.05;margin:10px 0 8px}
+h1 span{color:var(--acc)}
+h2{font-weight:normal;font-size:28px;margin:4px 0 10px}
+p{margin:0 0 10px}
+.lead{font-size:19px;max-width:660px}
+.note{font-size:15px;color:#4a463f}
+.steps{display:flex;border-top:1px solid var(--dark);border-bottom:1px solid var(--dark);margin:20px 0 22px}
+.steps div{flex:1;padding:9px 6px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);border-right:1px solid var(--line)}
+.steps div:last-child{border-right:none}
+.steps div b{display:block;font-weight:normal;font-size:20px;letter-spacing:0;color:var(--line)}
+.steps div.on{background:var(--dark);color:var(--light)}.steps div.on b{color:var(--acc)}
+.steps div.done b{color:var(--dark)}
+.stage{display:none}.stage.on{display:block}
+.btn{display:inline-block;background:var(--dark);color:var(--light);border:none;padding:13px 24px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;margin:6px 8px 6px 0}
+.btn:disabled{opacity:.3;cursor:default}
+.btn.ghost{background:none;color:var(--dark);border:1px solid var(--dark)}
+.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:17px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--acc);margin-top:2px;flex:none}
+audio{width:100%;margin:8px 0 4px}
+.box{border:1px solid var(--dark);background:var(--paper);padding:14px 16px;margin:12px 0}
+.box .l{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:6px}
+.box .h{font-size:14px;color:#5e5850;display:block;margin-bottom:8px}
+.code{font-size:34px;letter-spacing:.08em}
+.axis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 10px}
+.axis.two{grid-template-columns:1fr 1fr}
+.axis button{background:#fff;border:1px solid var(--dark);font:inherit;font-size:16px;padding:11px 4px;cursor:pointer;color:var(--dark)}
+.axis button.on{background:var(--dark);color:var(--light)}
+.axis button:disabled{cursor:default}
+.axl{font-size:14px;color:#5e5850}
+textarea{font:inherit;font-size:17px;width:100%;min-height:70px;padding:8px 10px;border:1px solid var(--dark);background:#fff;resize:vertical}
+textarea:disabled{background:var(--line);color:#4a463f}
+canvas.pad{display:block;width:100%;background:#fff;border:1px solid var(--dark);touch-action:none;cursor:crosshair}
+.padbar{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.padbar button{background:none;border:none;font:inherit;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);cursor:pointer}
+.slider{display:grid;grid-template-columns:120px 1fr 34px;gap:10px;align-items:center;margin:6px 0}
+.slider input{accent-color:var(--acc)}
+.prog{font-size:15px;letter-spacing:.14em;color:var(--mid);text-transform:uppercase}
+.prog b{color:var(--acc);font-weight:normal}
+.judge{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+.judge .mine img{width:100%;border:1px solid var(--dark);background:#fff;display:block}
+.cands{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cands button{background:#fff;border:1px solid var(--dark);padding:6px;cursor:pointer;aspect-ratio:1/1}
+.cands button svg{width:100%;height:100%}
+.cands button.pick{outline:4px solid var(--dark);outline-offset:2px}
+.cands button.right{background:#fbe2d6;border-color:var(--acc)}
+.cands.lock button{cursor:default}
+.sum{border-left:3px solid var(--acc);padding:6px 0 6px 16px;margin:16px 0}
+.sum .big{font-size:30px;line-height:1.1}
+.tag{display:inline-block;border:1px solid var(--dark);padding:5px 10px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin:8px 0}
+.locked{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin:4px 0 10px}
+.row{display:grid;grid-template-columns:90px 1fr 1fr;gap:12px;border-top:1px solid var(--line);padding:12px 0;align-items:start}
+.row svg{width:90px;height:90px;border:1px solid var(--dark);background:#fff}
+.row img{width:100%;max-width:200px;border:1px solid var(--line)}
+.row .m{font-size:15px;color:#4a463f}
+.row .m span.ok{color:var(--dark);border-bottom:2px solid var(--acc)}
+.row .m span.no{color:#a39a8e;text-decoration:line-through}
+@media(max-width:600px){h1{font-size:31px}.wrap{padding:20px 14px 50px}.steps div{font-size:9px;letter-spacing:.08em;padding:7px 3px}.judge{grid-template-columns:1fr}.row{grid-template-columns:70px 1fr}.row svg{width:70px;height:70px}.row .sk{grid-column:1/3}.slider{grid-template-columns:96px 1fr 30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Occulteria · Раскачка восприятия · Тренажёр 7</div>
+<h1>Скрытые <span>символы</span></h1>
+<p class="lead">Цель здесь простая геометрическая фигура: круг, крест, волна, спираль и другие. Вы проводите сессию по протоколу Урока 5: первое касание, свойства, догадки, эскиз. Потом сами сравниваете свой эскиз с четырьмя фигурами и выбираете похожую. Только после этого тренажёр покажет, какая была загадана.</p>
+
+<div class="steps"><div data-s="1"><b>1</b>Подготовка</div><div data-s="2"><b>2</b>Сессия</div><div data-s="3"><b>3</b>Закрытие</div><div data-s="4"><b>4</b>Сравнение</div><div data-s="5"><b>5</b>Итог</div></div>
+
+<section class="stage" id="s1">
+  <h2>Подготовка</h2>
+  <p>В серии 5 целей. Каждую ведите спокойно, времени не ограничено, но на одну цель обычно хватает двух-трёх минут. Пишите короткими словами и отделяйте догадки: «похоже на солнце» это догадка, «круглое, замкнутое» это свойство.</p>
+  <div class="box"><span class="l">Аудио 8. Перед сессией</span>Прослушайте его до конца, затем возвращайтесь сюда.<audio controls preload="none" src="audio/a08.mp3"></audio></div>
+  <label class="check"><input type="checkbox" id="c8"> Я прослушал(а) Аудио 8: опора стоит, окно открыто</label>
+  <div class="box"><span class="l">Состояние перед сессией</span>
+    <div class="slider"><span>Бодрость</span><input type="range" min="0" max="10" value="5" id="sb"><b id="sbv">5</b></div>
+    <div class="slider"><span>Спокойствие</span><input type="range" min="0" max="10" value="5" id="ss"><b id="ssv">5</b></div></div>
+  <button class="btn" id="go" disabled>Получить цели и начать</button>
+</section>
+
+<section class="stage" id="s2">
+  <div class="prog" id="prog"></div>
+  <div class="box"><span class="l">Цель</span><div class="code" id="code"></div><div class="note">Цель выбрана и скрыта. Посмотрите на номер и начинайте.</div></div>
+  <div class="box"><span class="l">Первое касание</span><span class="h">не думая, дайте руке провести одну линию</span><canvas class="pad" id="pad1" data-h="150"></canvas><div class="padbar"><span></span><button data-c="pad1">Стереть</button></div></div>
+  <div class="box"><span class="l">Свойства</span>
+    <div class="axl">Линии</div><div class="axis" data-k="0"><button data-v="0">прямые</button><button data-v="1">кривые</button><button data-v="2">и те и другие</button></div>
+    <div class="axl">Фигура</div><div class="axis two" data-k="1"><button data-v="0">замкнутая</button><button data-v="1">открытая</button></div>
+    <div class="axl">Углы, изломы</div><div class="axis two" data-k="2"><button data-v="0">есть</button><button data-v="1">нет</button></div>
+    <div class="axl">Симметрия</div><div class="axis two" data-k="3"><button data-v="0">есть</button><button data-v="1">нет</button></div>
+    <div class="axl">Свои слова</div><textarea id="props" placeholder="короткие слова: острое, плавное, расходится, в центре…"></textarea></div>
+  <div class="box"><span class="l">Догадки «Д»</span><span class="h">названия и истолкования, которые пришли сами</span><textarea id="guess" placeholder="Д: похоже на…"></textarea></div>
+  <div class="box"><span class="l">Эскиз</span><span class="h">нарисуйте форму так, как она ощущается</span><canvas class="pad" id="pad2" data-h="300"></canvas><div class="padbar"><span></span><button data-c="pad2">Стереть</button></div></div>
+  <button class="btn" id="next">Следующая цель</button>
+</section>
+
+<section class="stage" id="s3">
+  <h2>Закрытие</h2>
+  <p>Все 5 целей пройдены. Закройте запись. После этого эскизы и слова нельзя изменить.</p>
+  <button class="btn" id="lock">Закрыть запись</button>
+  <div id="after" style="display:none">
+    <div class="locked">Запись закрыта · <span id="tend"></span></div>
+    <div class="box"><span class="l">Аудио 9. Закрытие сессии</span>Прослушайте его до конца. Сравнение начинайте только после него.<audio controls preload="none" src="audio/a09.mp3"></audio></div>
+    <label class="check"><input type="checkbox" id="c9"> Я прослушал(а) Аудио 9: окно закрыто, связь с целью отпущена</label>
+    <button class="btn" id="tojudge" disabled>Перейти к сравнению</button>
+  </div>
+</section>
+
+<section class="stage" id="s4">
+  <div class="prog" id="jprog"></div>
+  <p>Слева ваш эскиз и записи. Справа четыре фигуры, одна из них загадана. Выберите ту, что больше всего похожа на вашу запись. Загаданная фигура откроется после выбора.</p>
+  <div class="judge"><div class="mine" id="mine"></div><div><div class="cands" id="cands"></div></div></div>
+  <button class="btn" id="jnext" style="display:none">Дальше</button>
+</section>
+
+<section class="stage" id="s5">
+  <h2>Итог</h2>
+  <div id="sum"></div>
+  <div id="rows"></div>
+  <p class="note" style="margin-top:14px">Попадание засчитывается, когда при сравнении вы выбрали загаданную фигуру. Случайный выбор из четырёх даёт одно попадание из четырёх. Свойства сравниваются отдельно: подчёркнуто то, что совпало, зачёркнуто то, что не совпало. Для этого элемента курса пройдите не меньше трёх серий.</p>
+  <button class="btn" id="again">Новая серия</button>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+function rint(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rint(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+const AXN=[['прямые','кривые','и те и другие'],['замкнутая','открытая'],['есть','нет'],['есть','нет']];
+const AXT=['линии','фигура','углы','симметрия'];
+// [линии, фигура, углы, симметрия]
+const S=[
+ {n:'Круг',p:[1,0,1,0],d:'<circle cx="50" cy="50" r="36" fill="none" stroke="#161616" stroke-width="6"/>'},
+ {n:'Крест',p:[0,1,0,0],d:'<path d="M50 12 V88 M12 50 H88" stroke="#161616" stroke-width="6"/>'},
+ {n:'Треугольник',p:[0,0,0,0],d:'<path d="M50 12 L88 84 L12 84Z" fill="none" stroke="#161616" stroke-width="6" stroke-linejoin="round"/>'},
+ {n:'Квадрат',p:[0,0,0,0],d:'<rect x="16" y="16" width="68" height="68" fill="none" stroke="#161616" stroke-width="6"/>'},
+ {n:'Волна',p:[1,1,1,1],d:'<path d="M8 50 Q22 26 36 50 T64 50 T92 50" fill="none" stroke="#161616" stroke-width="6"/>'},
+ {n:'Спираль',p:[1,1,1,1],d:'<path d="M50 50 m0 0 a4 4 0 0 1 8 0 a8 8 0 0 1 -16 0 a12 12 0 0 1 24 0 a16 16 0 0 1 -32 0 a20 20 0 0 1 40 0 a24 24 0 0 1 -48 0 a28 28 0 0 1 56 0" fill="none" stroke="#161616" stroke-width="5"/>'},
+ {n:'Зигзаг',p:[0,1,0,1],d:'<path d="M8 66 L26 34 L44 66 L62 34 L80 66 L92 46" fill="none" stroke="#161616" stroke-width="6" stroke-linejoin="round"/>'},
+ {n:'Звезда',p:[0,0,0,0],d:'<path d="M50 10 L60 38 L90 38 L66 56 L75 86 L50 68 L25 86 L34 56 L10 38 L40 38Z" fill="none" stroke="#161616" stroke-width="5" stroke-linejoin="round"/>'},
+ {n:'Две параллельные линии',p:[0,1,1,0],d:'<path d="M14 36 H86 M14 64 H86" stroke="#161616" stroke-width="6"/>'},
+ {n:'Полумесяц',p:[1,0,0,0],d:'<path d="M62 14 A38 38 0 1 0 62 86 A28 30 0 1 1 62 14Z" fill="none" stroke="#161616" stroke-width="5" stroke-linejoin="round"/>'}];
+const svg=d=>`<svg viewBox="0 0 100 100">${d}</svg>`;
+const N=5,KEY='occulteria_t7_v1';
+let st={stage:1};
+function save(){try{localStorage.setItem(KEY,btoa(unescape(encodeURIComponent(JSON.stringify(st)))))}catch(e){}}
+function load(){try{const s=localStorage.getItem(KEY);if(s)st=JSON.parse(decodeURIComponent(escape(atob(s))))}catch(e){}}
+function stage(n){st.stage=n;save();document.querySelectorAll('.stage').forEach((s,i)=>s.classList.toggle('on',i+1===n));
+  document.querySelectorAll('.steps div').forEach(d=>{const k=+d.dataset.s;d.classList.toggle('on',k===n);d.classList.toggle('done',k<n)});window.scrollTo(0,0)}
+const now=()=>new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+const code=()=>String(1000+rint(9000))+'-'+String(rint(100)).padStart(2,'0');
+const esc=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+// рисование
+function pad(id){const c=$(id),x=c.getContext('2d');let draw=false,dirty=false;
+  function fit(){const r=c.getBoundingClientRect(),d=window.devicePixelRatio||1,h=+c.dataset.h;const img=dirty?c.toDataURL():null;c.width=r.width*d;c.height=h*d;c.style.height=h+'px';x.setTransform(d,0,0,d,0,0);x.lineWidth=3;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#161616';if(img){const im=new Image();im.onload=()=>x.drawImage(im,0,0,r.width,h);im.src=img}}
+  const pos=e=>{const r=c.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]};
+  c.addEventListener('pointerdown',e=>{if(c.dataset.lock)return;draw=true;dirty=true;c.setPointerCapture(e.pointerId);const [a,b]=pos(e);x.beginPath();x.moveTo(a,b)});
+  c.addEventListener('pointermove',e=>{if(!draw)return;const [a,b]=pos(e);x.lineTo(a,b);x.stroke()});
+  ['pointerup','pointercancel'].forEach(t=>c.addEventListener(t,()=>{if(draw){draw=false;pads.onchange&&pads.onchange()}}));
+  return {fit,clear(){x.clearRect(0,0,c.width,c.height);dirty=false},get(){return dirty?c.toDataURL('image/png'):null},set(u){this.clear();if(!u)return;dirty=true;const im=new Image();im.onload=()=>{const r=c.getBoundingClientRect();x.drawImage(im,0,0,r.width,+c.dataset.h)};im.src=u},el:c}}
+const pads={p1:pad('pad1'),p2:pad('pad2')};
+document.querySelectorAll('.padbar button').forEach(b=>b.onclick=()=>{const p=b.dataset.c==='pad1'?pads.p1:pads.p2;p.clear();store()});
+
+// 1
+['sb','ss'].forEach(id=>$(id).oninput=()=>$(id+'v').textContent=$(id).value);
+$('c8').onchange=()=>$('go').disabled=!$('c8').checked;
+$('go').onclick=()=>{st={stage:2,b:+$('sb').value,s:+$('ss').value,start:now(),i:0,items:Array.from({length:N},()=>({t:rint(S.length),code:code(),a:[null,null,null,null],props:'',guess:'',f:null,e:null}))};save();stage(2);item()};
+
+// 2
+function store(){if(st.stage!==2)return;const it=st.items[st.i];it.props=$('props').value;it.guess=$('guess').value;it.f=pads.p1.get();it.e=pads.p2.get();save()}
+pads.onchange=store;$('props').oninput=store;$('guess').oninput=store;
+document.querySelectorAll('#s2 .axis').forEach(ax=>ax.querySelectorAll('button').forEach(b=>b.onclick=()=>{const it=st.items[st.i],k=+ax.dataset.k,v=+b.dataset.v;it.a[k]=it.a[k]===v?null:v;ax.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v===it.a[k]));save()}));
+function item(){const it=st.items[st.i];$('prog').innerHTML=`Цель <b>${st.i+1}</b> из ${N}`;$('code').textContent=it.code;$('props').value=it.props;$('guess').value=it.guess;
+  document.querySelectorAll('#s2 .axis').forEach(ax=>ax.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v===it.a[+ax.dataset.k])));
+  pads.p1.fit();pads.p2.fit();pads.p1.set(it.f);pads.p2.set(it.e);$('next').textContent=st.i===N-1?'Завершить серию':'Следующая цель'}
+$('next').onclick=()=>{store();st.i++;save();if(st.i>=N)stage(3);else item()};
+window.addEventListener('resize',()=>{if(st.stage===2){pads.p1.fit();pads.p2.fit()}});
+
+// 3
+$('lock').onclick=()=>{st.end=now();st.locked=true;save();after()};
+function after(){$('lock').style.display='none';$('after').style.display='block';$('tend').textContent='время окончания '+st.end}
+$('c9').onchange=()=>$('tojudge').disabled=!$('c9').checked;
+$('tojudge').onclick=()=>{st.j=0;st.items.forEach(it=>{if(!it.cands){const others=shuffle(S.map((s,i)=>i).filter(i=>i!==it.t)).slice(0,3);it.cands=shuffle([it.t,...others]);it.pick=null}});save();stage(4);judge()};
+
+// 4
+function mineHtml(it){const props=it.a.map((v,k)=>v===null?'':AXT[k]+': '+AXN[k][v]).filter(Boolean).join(', ');
+  return `${it.e?`<img src="${it.e}" alt="эскиз">`:(it.f?`<img src="${it.f}" alt="касание">`:'<div class="box note">Эскиза нет</div>')}<div class="note" style="margin-top:6px">${props?'Свойства: '+props+'. ':''}${it.props?'Слова: '+esc(it.props)+'. ':''}${it.guess?'Догадки: '+esc(it.guess)+'.':''}</div>`}
+function judge(){const it=st.items[st.j];$('jprog').innerHTML=`Цель <b>${st.j+1}</b> из ${N} · номер ${it.code}`;$('mine').innerHTML=mineHtml(it);
+  const box=$('cands');box.className='cands';box.innerHTML=it.cands.map(k=>`<button data-k="${k}">${svg(S[k].d)}</button>`).join('');$('jnext').style.display='none';
+  if(it.pick!==null)reveal(it);
+  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(it.pick!==null)return;it.pick=+b.dataset.k;save();reveal(it)})}
+function reveal(it){const box=$('cands');box.classList.add('lock');box.querySelectorAll('button').forEach(b=>{const k=+b.dataset.k;if(k===it.pick)b.classList.add('pick');if(k===it.t)b.classList.add('right')});
+  $('jprog').innerHTML+=` · загадано: ${S[it.t].n}${it.pick===it.t?', попадание':''}`;$('jnext').style.display='inline-block';$('jnext').textContent=st.j===N-1?'К итогу':'Дальше'}
+$('jnext').onclick=()=>{st.j++;save();if(st.j>=N){stage(5);summary()}else judge()};
+
+// 5
+function binomTail(k,n,p){let s=0;for(let i=k;i<=n;i++){let c=1;for(let j=0;j<i;j++)c=c*(n-j)/(j+1);s+=c*Math.pow(p,i)*Math.pow(1-p,n-i)}return s}
+function verdict(h,n,p){if(!n)return 'нет ответов';const pv=binomTail(h,n,p);if(pv<.05)return 'заметно выше случайного';if(pv<.2)return 'немного выше случайного';if(h<n*p-Math.sqrt(n*p*(1-p)))return 'ниже случайного';return 'на уровне случайного'}
+function summary(){let hits=0,ph=0,pn=0;
+  $('rows').innerHTML=st.items.map((it,i)=>{const t=S[it.t];if(it.pick===it.t)hits++;
+    const ms=it.a.map((v,k)=>{if(v===null)return '';pn++;const ok=v===t.p[k];if(ok)ph++;return `<span class="${ok?'ok':'no'}">${AXT[k]}: ${AXN[k][v]}</span>`}).filter(Boolean).join(', ');
+    return `<div class="row">${svg(t.d)}<div class="m"><b style="font-weight:normal;font-size:18px;color:#161616">${i+1}. ${t.n}</b><br>${it.pick===it.t?'Попадание при сравнении.':'При сравнении выбрано: '+S[it.pick].n.toLowerCase()+'.'}<br>${ms||'Свойства не отмечены.'}</div><div class="sk">${it.e?`<img src="${it.e}">`:''}</div></div>`}).join('');
+  $('sum').innerHTML=`<div class="sum"><div class="big">${hits} из ${N} попаданий</div><div class="tag">${verdict(hits,N,.25)}</div><div class="note">Свойства: совпало ${ph} из ${pn}. Начало ${st.start}, конец ${st.end}. Состояние перед сессией: бодрость ${st.b}, спокойствие ${st.s}.</div></div>`}
+$('again').onclick=()=>{st={stage:1};save();$('c8').checked=false;$('go').disabled=true;$('c9').checked=false;$('tojudge').disabled=true;$('lock').style.display='';$('after').style.display='none';stage(1)};
+
+load();
+if(st.stage===2&&st.items){stage(2);item()}
+else if(st.stage===3){stage(3);if(st.locked)after()}
+else if(st.stage===4&&st.items){stage(4);judge()}
+else if(st.stage===5&&st.items){stage(5);summary()}
+else stage(1);
+})();
+</script>
+</body>
+</html>

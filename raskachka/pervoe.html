@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Тренажёр «Первое впечатление». Раскачка восприятия. Occulteria</title>
+<style>
+:root{--light:#F3EDE5;--dark:#161616;--acc:#DF481A;--mid:#8a8378;--line:#d9d0c4;--paper:#fff9f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:var(--dark);font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.45}
+body{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:normal;font-size:40px;line-height:1.05;margin:10px 0 8px}
+h1 span{color:var(--acc)}
+h2{font-weight:normal;font-size:28px;margin:4px 0 10px}
+p{margin:0 0 10px}
+.lead{font-size:19px;max-width:660px}
+.note{font-size:15px;color:#4a463f}
+.steps{display:flex;border-top:1px solid var(--dark);border-bottom:1px solid var(--dark);margin:20px 0 22px}
+.steps div{flex:1;padding:9px 6px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);border-right:1px solid var(--line)}
+.steps div:last-child{border-right:none}
+.steps div b{display:block;font-weight:normal;font-size:20px;letter-spacing:0;color:var(--line)}
+.steps div.on{background:var(--dark);color:var(--light)}.steps div.on b{color:var(--acc)}
+.steps div.done b{color:var(--dark)}
+.stage{display:none}.stage.on{display:block}
+.btn{display:inline-block;background:var(--dark);color:var(--light);border:none;padding:13px 24px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;margin:6px 8px 6px 0}
+.btn:disabled{opacity:.3;cursor:default}
+.btn.ghost{background:none;color:var(--dark);border:1px solid var(--dark)}
+.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:17px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--acc);margin-top:2px;flex:none}
+audio{width:100%;margin:8px 0 4px}
+.box{border:1px solid var(--dark);background:var(--paper);padding:14px 16px;margin:12px 0}
+.box .l{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:6px}
+.code{font-size:34px;letter-spacing:.08em}
+.timer{height:6px;background:var(--line);margin:10px 0 14px;position:relative}
+.timer span{position:absolute;left:0;top:0;bottom:0;background:var(--acc)}
+.axis{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
+.axis button{background:var(--paper);border:1px solid var(--dark);font:inherit;font-size:17px;padding:13px 6px;cursor:pointer;color:var(--dark)}
+.axis button.on{background:var(--dark);color:var(--light)}
+.axis button:disabled{cursor:default}
+input[type=text]{font:inherit;font-size:18px;width:100%;padding:10px 10px;border:1px solid var(--dark);background:#fff}
+input[type=text]:disabled{background:var(--line);color:#4a463f}
+.slider{display:grid;grid-template-columns:120px 1fr 34px;gap:10px;align-items:center;margin:6px 0}
+.slider input{accent-color:var(--acc)}
+.prog{font-size:15px;letter-spacing:.14em;color:var(--mid);text-transform:uppercase}
+.prog b{color:var(--acc);font-weight:normal}
+.rescard{display:grid;grid-template-columns:150px 1fr;gap:14px;border-top:1px solid var(--line);padding:14px 0}
+.rescard svg{width:150px;height:110px;display:block;border:1px solid var(--dark)}
+.rescard .t{font-size:19px}
+.rescard .m{font-size:15px;color:#4a463f;margin-top:4px}
+.rescard .m span.ok{color:var(--dark);border-bottom:2px solid var(--acc)}
+.rescard .m span.no{color:#a39a8e;text-decoration:line-through}
+.sum{border-left:3px solid var(--acc);padding:6px 0 6px 16px;margin:16px 0}
+.sum .big{font-size:30px;line-height:1.1}
+.tag{display:inline-block;border:1px solid var(--dark);padding:5px 10px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin:8px 0}
+.locked{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin:4px 0 10px}
+@media(max-width:600px){h1{font-size:31px}.wrap{padding:20px 14px 50px}.steps div{font-size:9px;letter-spacing:.08em;padding:7px 3px}.rescard{grid-template-columns:110px 1fr}.rescard svg{width:110px;height:81px}.slider{grid-template-columns:96px 1fr 30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Occulteria · Раскачка восприятия · Тренажёр 6</div>
+<h1>Первое <span>впечатление</span></h1>
+<p class="lead">Первое впечатление приходит за одну-две секунды, пока ум ещё не начал рассуждать. Потом его заслоняют догадки. Этот тренажёр учит ловить и записывать именно первое касание цели.</p>
+
+<div class="steps"><div data-s="1"><b>1</b>Подготовка</div><div data-s="2"><b>2</b>Сессия</div><div data-s="3"><b>3</b>Закрытие</div><div data-s="4"><b>4</b>Ответы</div></div>
+
+<section class="stage" id="s1">
+  <h2>Подготовка</h2>
+  <p>Одна серия состоит из 10 целей. Каждая цель: картина, место или явление. Пока вы работаете, она скрыта. На каждую цель у вас 12 секунд: за это время отметьте первое, что пришло, по пяти признакам, и, если пришло, одно слово.</p>
+  <p class="note">Отвечайте по первому касанию. Если на каком-то признаке впечатления нет, оставьте его пустым: пустой ответ честнее угаданного. Ответы откроются только после закрытия сессии.</p>
+  <div class="box"><span class="l">Аудио 8. Перед сессией</span>Прослушайте его до конца, затем возвращайтесь сюда.<audio controls preload="none" src="audio/a08.mp3"></audio></div>
+  <label class="check"><input type="checkbox" id="c8"> Я прослушал(а) Аудио 8: опора стоит, окно открыто</label>
+  <div class="box"><span class="l">Состояние перед сессией</span>
+    <div class="slider"><span>Бодрость</span><input type="range" min="0" max="10" value="5" id="sb"><b id="sbv">5</b></div>
+    <div class="slider"><span>Спокойствие</span><input type="range" min="0" max="10" value="5" id="ss"><b id="ssv">5</b></div></div>
+  <button class="btn" id="go" disabled>Получить цели и начать</button>
+</section>
+
+<section class="stage" id="s2">
+  <div class="prog" id="prog"></div>
+  <div class="box"><span class="l">Цель</span><div class="code" id="code"></div><div class="note">Цель выбрана и скрыта. Посмотрите на номер и отметьте первое, что пришло.</div></div>
+  <div class="timer"><span id="bar"></span></div>
+  <div id="axes"></div>
+  <div style="margin-top:10px"><span class="note">Одно слово, если пришло само</span><input type="text" id="word" maxlength="40" autocomplete="off"></div>
+  <button class="btn" id="next">Дальше</button>
+</section>
+
+<section class="stage" id="s3">
+  <h2>Закрытие</h2>
+  <p>Все 10 целей пройдены. Закройте запись. После этого ответы нельзя будет изменить, так же как сданный лист сессии в Уроке 5.</p>
+  <button class="btn" id="lock">Закрыть запись</button>
+  <div id="after" style="display:none">
+    <div class="locked">Запись закрыта · <span id="tend"></span></div>
+    <div class="box"><span class="l">Аудио 9. Закрытие сессии</span>Прослушайте его до конца. Ответы смотрите только после него.<audio controls preload="none" src="audio/a09.mp3"></audio></div>
+    <label class="check"><input type="checkbox" id="c9"> Я прослушал(а) Аудио 9: окно закрыто, связь с целью отпущена</label>
+    <button class="btn" id="show" disabled>Показать ответы</button>
+  </div>
+</section>
+
+<section class="stage" id="s4">
+  <h2>Ответы</h2>
+  <div id="sum"></div>
+  <div id="cards"></div>
+  <p class="note" style="margin-top:14px">Подчёркнуты признаки, которые совпали, зачёркнуты те, что не совпали. Пустые признаки в счёт не идут. Одна серия мало что говорит о канале: смотрите на общий итог после нескольких серий в разные дни. Для этого элемента курса пройдите не меньше трёх серий.</p>
+  <button class="btn" id="again">Новая серия</button>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+function rint(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
+const AX=[['light','Светло','Темно'],['warm','Тепло','Холодно'],['nat','Природное','Рукотворное'],['move','Движение','Покой'],['vert','Вертикаль','Горизонталь']];
+// цели: свойства [светло, тепло, природное, движение, вертикаль] 1 = первый вариант
+const T=[
+ {n:'Костёр ночью',p:[0,1,1,1,1],svg:'<rect width="150" height="110" fill="#12131c"/><circle cx="118" cy="22" r="7" fill="#e9e1cf"/><rect y="88" width="150" height="22" fill="#1d1a16"/><path d="M75 34 C86 52 94 60 90 76 C87 88 80 92 75 92 C66 92 60 86 60 76 C60 66 67 62 69 52 C73 60 74 62 78 64 C79 54 77 44 75 34Z" fill="#DF481A"/><path d="M75 66 C80 72 82 78 80 84 C78 88 76 90 75 90 C71 90 69 87 69 84 C69 78 73 75 75 66Z" fill="#f2c230"/><path d="M52 92 L98 84 M54 84 L96 93" stroke="#5a3a22" stroke-width="5"/>'},
+ {n:'Морские волны',p:[1,0,1,1,0],svg:'<rect width="150" height="110" fill="#cfe1ee"/><rect y="46" width="150" height="64" fill="#2f5fd0"/><path d="M0 60 Q15 50 30 60 T60 60 T90 60 T120 60 T150 60" stroke="#e8f0f7" stroke-width="4" fill="none"/><path d="M0 78 Q15 68 30 78 T60 78 T90 78 T120 78 T150 78" stroke="#e8f0f7" stroke-width="4" fill="none"/><path d="M0 96 Q15 86 30 96 T60 96 T90 96 T120 96 T150 96" stroke="#e8f0f7" stroke-width="4" fill="none"/>'},
+ {n:'Пустыня в полдень',p:[1,1,1,0,0],svg:'<rect width="150" height="110" fill="#f6e7bf"/><circle cx="110" cy="24" r="12" fill="#f2c230"/><path d="M0 70 Q40 52 80 68 T150 64 L150 110 L0 110Z" fill="#e3b25c"/><path d="M0 88 Q50 74 100 90 T150 86 L150 110 L0 110Z" fill="#cf9440"/>'},
+ {n:'Снежная вершина',p:[1,0,1,0,1],svg:'<rect width="150" height="110" fill="#dce9f3"/><path d="M10 110 L75 14 L140 110Z" fill="#7d8796"/><path d="M75 14 L94 42 L84 38 L76 46 L66 38 L57 42Z" fill="#fff"/>'},
+ {n:'Ночной город',p:[0,0,0,0,1],svg:'<rect width="150" height="110" fill="#0f1424"/><rect x="12" y="40" width="22" height="70" fill="#273048"/><rect x="40" y="18" width="26" height="92" fill="#1f2840"/><rect x="72" y="50" width="20" height="60" fill="#2b3550"/><rect x="98" y="28" width="24" height="82" fill="#222b44"/><rect x="126" y="58" width="18" height="52" fill="#2a3350"/><g fill="#e8b41c"><rect x="45" y="26" width="4" height="4"/><rect x="56" y="38" width="4" height="4"/><rect x="45" y="56" width="4" height="4"/><rect x="104" y="40" width="4" height="4"/><rect x="113" y="62" width="4" height="4"/><rect x="18" y="52" width="4" height="4"/><rect x="77" y="66" width="4" height="4"/><rect x="104" y="84" width="4" height="4"/></g>'},
+ {n:'Мост над рекой',p:[1,1,0,0,0],svg:'<rect width="150" height="110" fill="#d8e8d0"/><rect y="70" width="150" height="40" fill="#5f8fc4"/><path d="M0 60 L150 60 L150 66 L0 66Z" fill="#6b5a4a"/><path d="M10 66 Q40 98 70 66 Q100 98 130 66" stroke="#6b5a4a" stroke-width="5" fill="none"/><path d="M0 56 L150 56" stroke="#6b5a4a" stroke-width="2"/>'},
+ {n:'Свечи в храме',p:[0,1,0,0,1],svg:'<rect width="150" height="110" fill="#1b1410"/><path d="M30 110 L30 40 Q75 -4 120 40 L120 110" stroke="#3b2b20" stroke-width="6" fill="none"/><g fill="#efe4cf"><rect x="52" y="64" width="8" height="40"/><rect x="71" y="56" width="8" height="48"/><rect x="90" y="68" width="8" height="36"/></g><g fill="#f2c230"><ellipse cx="56" cy="58" rx="3" ry="6"/><ellipse cx="75" cy="50" rx="3" ry="6"/><ellipse cx="94" cy="62" rx="3" ry="6"/></g>'},
+ {n:'Водопад в скалах',p:[1,0,1,1,1],svg:'<rect width="150" height="110" fill="#d7e4dc"/><rect x="0" y="0" width="52" height="110" fill="#6e6a62"/><rect x="98" y="0" width="52" height="110" fill="#6e6a62"/><rect x="52" y="0" width="46" height="96" fill="#bcd6ea"/><g stroke="#fff" stroke-width="3"><path d="M60 0 L60 92"/><path d="M72 0 L72 92"/><path d="M84 0 L84 92"/><path d="M94 0 L94 92"/></g><rect y="92" width="150" height="18" fill="#5f8fc4"/>'}];
+const N=10,TL=12,KEY='occulteria_t6_v1';
+let st={stage:1};
+function save(){try{localStorage.setItem(KEY,btoa(unescape(encodeURIComponent(JSON.stringify(st)))))}catch(e){}}
+function load(){try{const s=localStorage.getItem(KEY);if(s)st=JSON.parse(decodeURIComponent(escape(atob(s))))}catch(e){}}
+function stage(n){st.stage=n;save();document.querySelectorAll('.stage').forEach((s,i)=>s.classList.toggle('on',i+1===n));
+  document.querySelectorAll('.steps div').forEach(d=>{const k=+d.dataset.s;d.classList.toggle('on',k===n);d.classList.toggle('done',k<n)});window.scrollTo(0,0)}
+const now=()=>new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+function code(){return String(1000+rint(9000))+'-'+String(rint(100)).padStart(2,'0')}
+
+// 1
+['sb','ss'].forEach(id=>$(id).oninput=()=>$(id+'v').textContent=$(id).value);
+$('c8').onchange=()=>$('go').disabled=!$('c8').checked;
+$('go').onclick=()=>{st={stage:2,b:+$('sb').value,s:+$('ss').value,start:now(),i:0,items:Array.from({length:N},()=>({t:rint(T.length),code:code(),a:[null,null,null,null,null],w:''}))};save();stage(2);runItem()};
+
+// 2
+let timer=null;
+function runItem(){const it=st.items[st.i];$('prog').innerHTML=`Цель <b>${st.i+1}</b> из ${N}`;$('code').textContent=it.code;$('word').value=it.w;$('word').disabled=false;
+  $('axes').innerHTML=AX.map((a,k)=>`<div class="axis" data-k="${k}"><button data-v="1" class="${it.a[k]===1?'on':''}">${a[1]}</button><button data-v="0" class="${it.a[k]===0?'on':''}">${a[2]}</button></div>`).join('');
+  $('axes').querySelectorAll('.axis').forEach(ax=>ax.querySelectorAll('button').forEach(b=>b.onclick=()=>{const k=+ax.dataset.k,v=+b.dataset.v;it.a[k]=it.a[k]===v?null:v;ax.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v===it.a[k]));save()}));
+  $('word').oninput=()=>{it.w=$('word').value.trim();save()};
+  let t0=performance.now();clearInterval(timer);
+  timer=setInterval(()=>{const left=TL-(performance.now()-t0)/1000;$('bar').style.width=Math.max(0,left/TL*100)+'%';if(left<=0){clearInterval(timer);freeze()}},100)}
+function freeze(){$('axes').querySelectorAll('button').forEach(b=>b.disabled=true);$('word').disabled=true}
+$('next').onclick=()=>{clearInterval(timer);st.i++;save();if(st.i>=N){stage(3)}else runItem()};
+
+// 3
+$('lock').onclick=()=>{st.end=now();st.locked=true;save();showAfter()};
+function showAfter(){$('lock').style.display='none';$('after').style.display='block';$('tend').textContent='время окончания '+st.end}
+$('c9').onchange=()=>$('show').disabled=!$('c9').checked;
+$('show').onclick=()=>{st.shown=true;save();stage(4);results()};
+
+// 4
+function binomTail(k,n,p){let s=0;for(let i=k;i<=n;i++){let c=1;for(let j=0;j<i;j++)c=c*(n-j)/(j+1);s+=c*Math.pow(p,i)*Math.pow(1-p,n-i)}return s}
+function verdict(h,n){if(!n)return 'нет ответов';const pv=binomTail(h,n,.5);if(pv<.05)return 'заметно выше случайного';if(pv<.2)return 'немного выше случайного';if(h<n/2-Math.sqrt(n)/2)return 'ниже случайного';return 'на уровне случайного'}
+function results(){let hit=0,tot=0;
+  $('cards').innerHTML=st.items.map((it,i)=>{const t=T[it.t];let h=0,n=0;
+    const marks=AX.map((a,k)=>{if(it.a[k]===null)return '';n++;const ok=it.a[k]===t.p[k];if(ok)h++;return `<span class="${ok?'ok':'no'}">${it.a[k]===1?a[1]:a[2]}</span>`}).filter(Boolean).join(', ');
+    hit+=h;tot+=n;
+    return `<div class="rescard"><svg viewBox="0 0 150 110">${t.svg}</svg><div><div class="t">${i+1}. ${t.n}</div><div class="m">Номер ${it.code}. Ваши признаки: ${marks||'нет'}.${it.w?' Слово: «'+it.w.replace(/</g,'')+'».':''}</div><div class="m">Совпало ${h} из ${n}</div></div></div>`}).join('');
+  $('sum').innerHTML=`<div class="sum"><div class="big">${hit} из ${tot} признаков совпало</div><div class="tag">${verdict(hit,tot)}</div><div class="note">Начало ${st.start}, конец ${st.end}. Состояние перед сессией: бодрость ${st.b}, спокойствие ${st.s}. Случайный выбор дал бы в среднем половину совпадений.</div></div>`}
+$('again').onclick=()=>{st={stage:1};save();$('c8').checked=false;$('go').disabled=true;$('c9').checked=false;$('show').disabled=true;$('lock').style.display='';$('after').style.display='none';stage(1)};
+
+// восстановление
+load();
+if(st.stage===2&&st.items){stage(2);runItem()}
+else if(st.stage===3){stage(3);if(st.locked)showAfter()}
+else if(st.stage===4&&st.shown){stage(4);results()}
+else stage(1);
+})();
+</script>
+</body>
+</html>
