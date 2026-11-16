@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Итоговая слепая сессия. Раскачка восприятия. Occulteria</title>
+<style>
+:root{--light:#F3EDE5;--dark:#161616;--acc:#DF481A;--mid:#8a8378;--line:#d9d0c4;--paper:#fff9f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:var(--dark);font-family:"Times New Roman",Times,"Liberation Serif",serif;font-size:18px;line-height:1.45}
+body{-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.kicker{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:normal;font-size:40px;line-height:1.05;margin:10px 0 8px}
+h1 span{color:var(--acc)}
+h2{font-weight:normal;font-size:28px;margin:4px 0 10px}
+p{margin:0 0 10px}
+.lead{font-size:19px;max-width:660px}
+.note{font-size:15px;color:#4a463f}
+.steps{display:flex;border-top:1px solid var(--dark);border-bottom:1px solid var(--dark);margin:20px 0 22px}
+.steps div{flex:1;padding:9px 6px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);border-right:1px solid var(--line)}
+.steps div:last-child{border-right:none}
+.steps div b{display:block;font-weight:normal;font-size:20px;letter-spacing:0;color:var(--line)}
+.steps div.on{background:var(--dark);color:var(--light)}.steps div.on b{color:var(--acc)}
+.steps div.done b{color:var(--dark)}
+.stage{display:none}.stage.on{display:block}
+.btn{display:inline-block;background:var(--dark);color:var(--light);border:none;padding:13px 24px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;margin:6px 8px 6px 0}
+.btn:disabled{opacity:.3;cursor:default}
+.btn.ghost{background:none;color:var(--dark);border:1px solid var(--dark)}
+.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:17px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--acc);margin-top:2px;flex:none}
+audio{width:100%;margin:8px 0 4px}
+.box{border:1px solid var(--dark);background:var(--paper);padding:14px 16px;margin:12px 0}
+.box .l{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:6px}
+.box .h{font-size:14px;color:#5e5850;display:block;margin-bottom:8px}
+.code{font-size:34px;letter-spacing:.08em}
+.axis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 10px}
+.axis.two{grid-template-columns:1fr 1fr}
+.axis button{background:#fff;border:1px solid var(--dark);font:inherit;font-size:16px;padding:11px 4px;cursor:pointer;color:var(--dark)}
+.axis button.on{background:var(--dark);color:var(--light)}
+.axis button:disabled{cursor:default}
+.axl{font-size:14px;color:#5e5850}
+textarea{font:inherit;font-size:17px;width:100%;min-height:70px;padding:8px 10px;border:1px solid var(--dark);background:#fff;resize:vertical}
+textarea:disabled{background:var(--line);color:#4a463f}
+canvas.pad{display:block;width:100%;background:#fff;border:1px solid var(--dark);touch-action:none;cursor:crosshair}
+.padbar{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.padbar button{background:none;border:none;font:inherit;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);cursor:pointer}
+.slider{display:grid;grid-template-columns:120px 1fr 34px;gap:10px;align-items:center;margin:6px 0}
+.slider input{accent-color:var(--acc)}
+.prog{font-size:15px;letter-spacing:.14em;color:var(--mid);text-transform:uppercase}
+.prog b{color:var(--acc);font-weight:normal}
+.judge{display:grid;grid-template-columns:1fr;gap:14px;margin:10px 0}.judge .mine img{max-width:420px}
+.judge .mine img{width:100%;border:1px solid var(--dark);background:#fff;display:block}
+.cands{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cands button{background:#fff;border:1px solid var(--dark);padding:6px;cursor:pointer;aspect-ratio:1/1}
+.cands button{aspect-ratio:4/3}.cands button img{width:100%;height:100%;object-fit:cover;display:block}
+.cands button.pick{outline:4px solid var(--dark);outline-offset:2px}
+.cands button.right{background:#fbe2d6;border-color:var(--acc)}
+.cands.lock button{cursor:default}
+.sum{border-left:3px solid var(--acc);padding:6px 0 6px 16px;margin:16px 0}
+.sum .big{font-size:30px;line-height:1.1}
+.tag{display:inline-block;border:1px solid var(--dark);padding:5px 10px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin:8px 0}
+.locked{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin:4px 0 10px}
+.row{display:grid;grid-template-columns:160px 1fr 1fr;gap:12px;border-top:1px solid var(--line);padding:12px 0;align-items:start}
+.row .ph{width:160px;border:1px solid var(--dark);display:block}
+.row img{width:100%;max-width:200px;border:1px solid var(--line)}
+.row .m{font-size:15px;color:#4a463f}
+.row .m span.ok{color:var(--dark);border-bottom:2px solid var(--acc)}
+.row .m span.no{color:#a39a8e;text-decoration:line-through}
+.mapgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.mapgrid div{border:1px solid var(--dark);padding:10px 12px;background:var(--paper)}
+.mapgrid div b{display:block;font-weight:normal;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--mid)}
+.mapgrid div.on{background:var(--dark);color:var(--light)}.mapgrid div.on b{color:var(--acc)}
+.bar{display:grid;grid-template-columns:150px 1fr 40px;gap:10px;align-items:center;margin:8px 0}
+.bar .tr{height:14px;background:var(--line);position:relative}.bar .tr span{position:absolute;left:0;top:0;bottom:0;background:var(--dark)}
+.bar.lead .tr span{background:var(--acc)}
+@media(max-width:600px){.bar{grid-template-columns:148px 1fr 28px;gap:6px;font-size:16px}}
+@media(max-width:600px){h1{font-size:31px}.wrap{padding:20px 14px 50px}.steps div{font-size:9px;letter-spacing:.08em;padding:7px 3px}.judge{grid-template-columns:1fr}.row{grid-template-columns:110px 1fr}.row .ph{width:110px}.row .sk{grid-column:1/3}.slider{grid-template-columns:96px 1fr 30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Occulteria · Раскачка восприятия · Итоговая сессия</div>
+<h1>Итоговая <span>слепая сессия</span></h1>
+<p class="lead">Одна полная сессия на новую фотографию, которой не было в тренажёрах. Вы выбираете формат, проводите сессию, сравниваете впечатления с четырьмя фотографиями, а затем получаете карту результатов: какие признаки и каналы у вас сработали. Оценки нет.</p>
+
+<div class="steps"><div data-s="1"><b>1</b>Подготовка</div><div data-s="2"><b>2</b>Сессия</div><div data-s="3"><b>3</b>Закрытие</div><div data-s="4"><b>4</b>Сравнение</div><div data-s="5"><b>5</b>Итог</div></div>
+
+<section class="stage" id="s1">
+  <h2>Подготовка</h2>
+  <div class="box"><span class="l">Режим</span>
+    <label class="check"><input type="radio" name="mode" value="3" checked> С записью: Аудио 8, лист сессии, Аудио 9</label>
+    <label class="check"><input type="radio" name="mode" value="10"> С Аудио 10: глаза закрыты всю сессию, ничего не записываете</label></div>
+  <div id="m3">
+  <p>Цель одна. Ведите её спокойно, столько, сколько нужно. Пишите короткими словами и отделяйте догадки от свойств.</p>
+  <div class="box"><span class="l">Аудио 8. Перед сессией</span>Прослушайте его до конца, затем возвращайтесь сюда.<audio controls preload="none" src="audio/a08.mp3"></audio></div>
+  <label class="check"><input type="checkbox" id="c8"> Я прослушал(а) Аудио 8: опора стоит, окно открыто</label>
+  <div class="box"><span class="l">Состояние перед сессией</span>
+    <div class="slider"><span>Бодрость</span><input type="range" min="0" max="10" value="5" id="sb"><b id="sbv">5</b></div>
+    <div class="slider"><span>Спокойствие</span><input type="range" min="0" max="10" value="5" id="ss"><b id="ssv">5</b></div></div>
+  <button class="btn" id="go" disabled>Получить цель и начать</button>
+  </div>
+  <div id="m10" style="display:none">
+    <p>Нажмите «Получить цель». Цель будет загадана и спрятана. Затем включите Аудио 10 прямо здесь, отложите телефон и слушайте с закрытыми глазами до конца. Вход и выход уже есть в записи, Аудио 8 и 9 не нужны.</p>
+    <button class="btn" id="go10">Получить цель</button>
+  </div>
+</section>
+<section class="stage" id="s10">
+  <div class="box"><span class="l">Цель загадана</span><div class="code" id="code10"></div><div class="note">Номер запоминать не нужно. Включите аудио и закройте глаза.</div></div>
+  <div class="box"><span class="l">Аудио 10. Слепая сессия под голос проводника</span><audio controls preload="none" src="audio/a10.mp3"></audio></div>
+  <label class="check"><input type="checkbox" id="c10"> Я прослушал(а) Аудио 10 до конца: сессия проведена, выход сделан</label>
+  <button class="btn" id="tojudge10" disabled>Выбрать фотографию</button>
+</section>
+
+<section class="stage" id="s2">
+  <div class="prog" id="prog"></div>
+  <div class="box"><span class="l">Цель</span><div class="code" id="code"></div><div class="note">Цель выбрана и скрыта. Посмотрите на номер и начинайте.</div></div>
+  <div class="box"><span class="l">Первое касание</span><span class="h">не думая, дайте руке провести одну линию</span><canvas class="pad" id="pad1" data-h="150"></canvas><div class="padbar"><span></span><button data-c="pad1">Стереть</button></div></div>
+  <div class="box"><span class="l">Пространство и общее</span>
+    <div class="axl">Где</div><div class="axis two" data-k="0"><button data-v="0">снаружи</button><button data-v="1">внутри</button></div>
+    <div class="axl">Свет</div><div class="axis two" data-k="1"><button data-v="0">светло</button><button data-v="1">темно</button></div>
+    <div class="axl">Вода</div><div class="axis two" data-k="2"><button data-v="0">есть</button><button data-v="1">нет</button></div>
+    <div class="axl">Сделано человеком</div><div class="axis two" data-k="3"><button data-v="0">есть</button><button data-v="1">нет</button></div>
+    <div class="axl">Главное направление</div><div class="axis two" data-k="4"><button data-v="0">вертикаль</button><button data-v="1">горизонталь</button></div>
+    <div class="axl">Движение</div><div class="axis two" data-k="5"><button data-v="0">есть</button><button data-v="1">покой</button></div></div>
+  <div class="box"><span class="l">Свойства по каналам</span><span class="h">короткие слова, каждое на своём месте</span>
+    <div class="axl">Видимое: цвета, формы, фактуры</div><textarea id="props" placeholder="серое, высокое, шершавое…"></textarea>
+    <div class="axl" style="margin-top:8px">Звук, запах, температура, ощущения в теле</div><textarea id="props2" placeholder="шум, прохладно, ветер…"></textarea></div>
+  <div class="box"><span class="l">Догадки «Д»</span><span class="h">названия и истолкования, которые пришли сами</span><textarea id="guess" placeholder="Д: похоже на…"></textarea></div>
+  <div class="box"><span class="l">Эскиз</span><span class="h">главные формы и их расположение, с подписями словами</span><canvas class="pad" id="pad2" data-h="300"></canvas><div class="padbar"><span></span><button data-c="pad2">Стереть</button></div></div>
+  <div class="box"><span class="l">Итог</span><span class="h">пять главных впечатлений</span><textarea id="sum5" placeholder="1. …"></textarea></div>
+  <button class="btn" id="next">Закончить сессию</button>
+</section>
+
+<section class="stage" id="s3">
+  <h2>Закрытие</h2>
+  <p>Сессия проведена. Закройте запись. После этого эскизы и слова нельзя изменить.</p>
+  <button class="btn" id="lock">Закрыть запись</button>
+  <div id="after" style="display:none">
+    <div class="locked">Запись закрыта · <span id="tend"></span></div>
+    <div class="box"><span class="l">Аудио 9. Закрытие сессии</span>Прослушайте его до конца. Сравнение начинайте только после него.<audio controls preload="none" src="audio/a09.mp3"></audio></div>
+    <label class="check"><input type="checkbox" id="c9"> Я прослушал(а) Аудио 9: окно закрыто, связь с целью отпущена</label>
+    <button class="btn" id="tojudge" disabled>Перейти к сравнению</button>
+  </div>
+</section>
+
+<section class="stage" id="s4">
+  <div class="prog" id="jprog"></div>
+  <p>Сверху ваш эскиз и записи. Ниже четыре фотографии, одна из них загадана. Выберите ту, что больше всего похожа на вашу запись. Загаданная откроется после выбора.</p>
+  <div class="judge"><div class="mine" id="mine"></div><div><div class="cands" id="cands"></div></div></div>
+  <button class="btn" id="jnext" style="display:none">Дальше</button>
+</section>
+
+<section class="stage" id="s5">
+  <h2>Итог</h2>
+  <div id="sum"></div>
+  <div id="rows"></div>
+  <p class="note" style="margin-top:14px">Попадание засчитывается, когда при сравнении вы выбрали загаданную фотографию. Случайный выбор из четырёх даёт одно попадание из четырёх. Общие признаки сравниваются отдельно: подчёркнуто то, что совпало, зачёркнуто то, что не совпало. </p>
+  <div class="box" id="selfbox"><span class="l">Что совпало</span><span class="h">Посмотрите на загаданную фотографию и отметьте то, что было в ваших впечатлениях и есть на снимке. Отмечайте честно: только то, что вы действительно заметили до ответа.</span>
+    <label class="check"><input type="checkbox" data-a="color"> Цвет</label>
+    <label class="check"><input type="checkbox" data-a="form"> Форма</label>
+    <label class="check"><input type="checkbox" data-a="texture"> Фактура, материал</label>
+    <label class="check"><input type="checkbox" data-a="sound"> Звук</label>
+    <label class="check"><input type="checkbox" data-a="body"> Температура, ощущения в теле</label>
+    <label class="check"><input type="checkbox" data-a="space"> Пространство: простор, высота, внутри или снаружи</label>
+    <label class="check"><input type="checkbox" data-a="mood"> Настроение места</label>
+    <label class="check"><input type="checkbox" data-a="name"> Догадка-название совпала с тем, что на фото</label>
+    <button class="btn" id="mapbtn">Показать карту результатов</button></div>
+  <div id="map"></div>
+  <button class="btn ghost" id="again">Провести ещё одну сессию</button>
+</section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+function rint(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rint(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+const AXN=[['снаружи','внутри'],['светло','темно'],['есть','нет'],['есть','нет'],['вертикаль','горизонталь'],['есть','покой']];
+const AXT=['где','свет','вода','сделано человеком','направление','движение'];
+// [внутри, темно, нет воды, нет рукотворного, горизонталь, покой] 0 = первый вариант
+const S=[
+ {k:'derevnya',n:'Заснеженная деревня на закате',p:[0,0,1,0,1,1]},{k:'gavan',n:'Рыболовные суда в гавани',p:[0,0,0,0,1,1]},
+ {k:'kombayn',n:'Комбайн в пшеничном поле',p:[0,0,1,0,1,0]},{k:'lavanda',n:'Лавандовое поле',p:[0,0,1,1,1,1]},
+ {k:'neboskreby',n:'Небоскрёбы снизу',p:[0,1,1,0,0,1]},{k:'pagoda',n:'Пагода на фоне горы',p:[0,0,1,0,0,1]},
+ {k:'ruchey',n:'Ручей в зелёном лесу',p:[0,1,0,1,1,0]},{k:'shtorm',n:'Штормовое море',p:[0,0,0,1,1,0]},
+ {k:'siyanie',n:'Северное сияние',p:[0,1,1,1,1,0]},{k:'stounhendzh',n:'Стоунхендж',p:[0,0,1,0,1,1]},
+ {k:'tuman',n:'Лес в тумане',p:[0,0,1,1,0,1]},{k:'verblyud',n:'Верблюд в пустыне',p:[0,0,1,1,1,1]}];
+const img=k=>`<img src="imgF/${k}.jpg" alt="">`;
+const N=1,KEY='occulteria_final_v1';
+let st={stage:1};
+function save(){try{localStorage.setItem(KEY,btoa(unescape(encodeURIComponent(JSON.stringify(st)))))}catch(e){}}
+function load(){try{const s=localStorage.getItem(KEY);if(s)st=JSON.parse(decodeURIComponent(escape(atob(s))))}catch(e){}}
+function stage(n){st.stage=n;save();document.querySelectorAll('.stage').forEach(s=>s.classList.toggle('on',s.id==='s'+n));
+  document.querySelectorAll('.steps div').forEach(d=>{const k=+d.dataset.s;const m=n===10?2:n;d.classList.toggle('on',k===m);d.classList.toggle('done',k<m)});window.scrollTo(0,0)}
+const now=()=>new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+const code=()=>String(1000+rint(9000))+'-'+String(rint(100)).padStart(2,'0');
+const esc=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+// рисование
+function pad(id){const c=$(id),x=c.getContext('2d');let draw=false,dirty=false;
+  function fit(){const r=c.getBoundingClientRect(),d=window.devicePixelRatio||1,h=+c.dataset.h;const img=dirty?c.toDataURL():null;c.width=r.width*d;c.height=h*d;c.style.height=h+'px';x.setTransform(d,0,0,d,0,0);x.lineWidth=3;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#161616';if(img){const im=new Image();im.onload=()=>x.drawImage(im,0,0,r.width,h);im.src=img}}
+  const pos=e=>{const r=c.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]};
+  c.addEventListener('pointerdown',e=>{if(c.dataset.lock)return;draw=true;dirty=true;c.setPointerCapture(e.pointerId);const [a,b]=pos(e);x.beginPath();x.moveTo(a,b)});
+  c.addEventListener('pointermove',e=>{if(!draw)return;const [a,b]=pos(e);x.lineTo(a,b);x.stroke()});
+  ['pointerup','pointercancel'].forEach(t=>c.addEventListener(t,()=>{if(draw){draw=false;pads.onchange&&pads.onchange()}}));
+  return {fit,clear(){x.clearRect(0,0,c.width,c.height);dirty=false},get(){return dirty?c.toDataURL('image/png'):null},set(u){this.clear();if(!u)return;dirty=true;const im=new Image();im.onload=()=>{const r=c.getBoundingClientRect();x.drawImage(im,0,0,r.width,+c.dataset.h)};im.src=u},el:c}}
+const pads={p1:pad('pad1'),p2:pad('pad2')};
+document.querySelectorAll('.padbar button').forEach(b=>b.onclick=()=>{const p=b.dataset.c==='pad1'?pads.p1:pads.p2;p.clear();store()});
+
+// 1
+['sb','ss'].forEach(id=>$(id).oninput=()=>$(id+'v').textContent=$(id).value);
+$('c8').onchange=()=>$('go').disabled=!$('c8').checked;
+$('go').onclick=()=>{st={stage:2,b:+$('sb').value,s:+$('ss').value,start:now(),i:0,items:Array.from({length:N},()=>({t:rint(S.length),code:code(),a:[null,null,null,null,null,null],props:'',props2:'',sum5:'',guess:'',f:null,e:null}))};save();stage(2);item()};
+
+// 2
+function store(){if(st.stage!==2)return;const it=st.items[st.i];it.props=$('props').value;it.props2=$('props2').value;it.sum5=$('sum5').value;it.guess=$('guess').value;it.f=pads.p1.get();it.e=pads.p2.get();save()}
+pads.onchange=store;$('props').oninput=store;$('props2').oninput=store;$('sum5').oninput=store;$('guess').oninput=store;
+document.querySelectorAll('#s2 .axis').forEach(ax=>ax.querySelectorAll('button').forEach(b=>b.onclick=()=>{const it=st.items[st.i],k=+ax.dataset.k,v=+b.dataset.v;it.a[k]=it.a[k]===v?null:v;ax.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v===it.a[k]));save()}));
+function item(){const it=st.items[st.i];$('prog').innerHTML=`Цель <b>${st.i+1}</b> из ${N}`;$('code').textContent=it.code;$('props').value=it.props;$('props2').value=it.props2;$('sum5').value=it.sum5;$('guess').value=it.guess;
+  document.querySelectorAll('#s2 .axis').forEach(ax=>ax.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v===it.a[+ax.dataset.k])));
+  pads.p1.fit();pads.p2.fit();pads.p1.set(it.f);pads.p2.set(it.e);$('next').textContent=st.i===N-1?'Завершить серию':'Следующая цель'}
+$('next').onclick=()=>{store();st.i++;save();if(st.i>=N)stage(3);else item()};
+window.addEventListener('resize',()=>{if(st.stage===2){pads.p1.fit();pads.p2.fit()}});
+
+// 3
+$('lock').onclick=()=>{st.end=now();st.locked=true;save();after()};
+function after(){$('lock').style.display='none';$('after').style.display='block';$('tend').textContent='время окончания '+st.end}
+$('c9').onchange=()=>$('tojudge').disabled=!$('c9').checked;
+$('tojudge').onclick=()=>{st.j=0;st.items.forEach(it=>{if(!it.cands){const others=shuffle(S.map((s,i)=>i).filter(i=>i!==it.t)).slice(0,3);it.cands=shuffle([it.t,...others]);it.pick=null}});save();stage(4);judge()};
+
+
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{const t=document.querySelector('input[name=mode]:checked').value==='10';$('m3').style.display=t?'none':'';$('m10').style.display=t?'':'none'});
+$('go10').onclick=()=>{st={stage:10,mode:10,start:now(),items:[{t:rint(S.length),code:code(),a:[null,null,null,null,null,null],props:'',props2:'',sum5:'',guess:'',f:null,e:null}]};save();stage(10);$('code10').textContent=st.items[0].code};
+$('c10').onchange=()=>$('tojudge10').disabled=!$('c10').checked;
+$('tojudge10').onclick=()=>{st.end=now();st.j=0;const it=st.items[0];const others=shuffle(S.map((s,i)=>i).filter(i=>i!==it.t)).slice(0,3);it.cands=shuffle([it.t,...others]);it.pick=null;save();stage(4);judge()};
+
+// 4
+function mineHtml(it){if(st.mode===10)return '<div class="box note">Вспомните свои впечатления и выберите фотографию по памяти.</div>';const props=it.a.map((v,k)=>v===null?'':AXT[k]+': '+AXN[k][v]).filter(Boolean).join(', ');
+  return `${it.e?`<img src="${it.e}" alt="эскиз">`:(it.f?`<img src="${it.f}" alt="касание">`:'<div class="box note">Эскиза нет</div>')}<div class="note" style="margin-top:6px">${props?'Свойства: '+props+'. ':''}${it.props?'Видимое: '+esc(it.props)+'. ':''}${it.props2?'Звук, тело: '+esc(it.props2)+'. ':''}${it.sum5?'Итог: '+esc(it.sum5)+'. ':''}${it.guess?'Догадки: '+esc(it.guess)+'.':''}</div>`}
+function judge(){const it=st.items[st.j];$('jprog').innerHTML=`Цель <b>${st.j+1}</b> из ${st.items.length} · номер ${it.code}`;$('mine').innerHTML=mineHtml(it);
+  const box=$('cands');box.className='cands';box.innerHTML=it.cands.map(k=>`<button data-k="${k}">${img(S[k].k)}</button>`).join('');$('jnext').style.display='none';
+  if(it.pick!==null)reveal(it);
+  box.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(it.pick!==null)return;it.pick=+b.dataset.k;save();reveal(it)})}
+function reveal(it){const box=$('cands');box.classList.add('lock');box.querySelectorAll('button').forEach(b=>{const k=+b.dataset.k;if(k===it.pick)b.classList.add('pick');if(k===it.t)b.classList.add('right')});
+  $('jprog').innerHTML+=` · загадано: ${S[it.t].n}${it.pick===it.t?', попадание':''}`;$('jnext').style.display='inline-block';$('jnext').textContent=st.j===st.items.length-1?'К итогу':'Дальше'}
+$('jnext').onclick=()=>{st.j++;save();if(st.j>=st.items.length){stage(5);summary()}else judge()};
+
+// 5
+function binomTail(k,n,p){let s=0;for(let i=k;i<=n;i++){let c=1;for(let j=0;j<i;j++)c=c*(n-j)/(j+1);s+=c*Math.pow(p,i)*Math.pow(1-p,n-i)}return s}
+function verdict(h,n,p){if(!n)return 'нет ответов';const pv=binomTail(h,n,p);if(pv<.05)return 'заметно выше случайного';if(pv<.2)return 'немного выше случайного';if(h<n*p-Math.sqrt(n*p*(1-p)))return 'ниже случайного';return 'на уровне случайного'}
+function summary(){let hits=0,ph=0,pn=0;
+  $('rows').innerHTML=st.items.map((it,i)=>{const t=S[it.t];if(it.pick===it.t)hits++;
+    const ms=it.a.map((v,k)=>{if(v===null)return '';pn++;const ok=v===t.p[k];if(ok)ph++;return `<span class="${ok?'ok':'no'}">${AXT[k]}: ${AXN[k][v]}</span>`}).filter(Boolean).join(', ');
+    return `<div class="row"><img class="ph" src="imgF/${t.k}.jpg"><div class="m"><b style="font-weight:normal;font-size:18px;color:#161616">${i+1}. ${t.n}</b><br>${it.pick===it.t?'Попадание при сравнении.':'При сравнении выбрано: '+S[it.pick].n.toLowerCase()+'.'}<br>${st.mode===10?'':(ms||'Общие признаки не отмечены.')}</div><div class="sk">${it.e?`<img src="${it.e}">`:''}</div></div>`}).join('');
+  const NN=st.items.length;$('sum').innerHTML=`<div class="sum"><div class="big">${hits} из ${NN} ${st.mode===10?(hits?'попадание':'попаданий'):'попаданий'}</div><div class="tag">${verdict(hits,NN,.25)}</div><div class="note">${st.mode===10?'Сессия с Аудио 10. Случайный выбор из четырёх фотографий даёт попадание в одном случае из четырёх, поэтому судить о канале можно только по нескольким сессиям.':'Общие признаки: совпало '+ph+' из '+pn+'. Состояние перед сессией: бодрость '+st.b+', спокойствие '+st.s+'.'} Начало ${st.start}, конец ${st.end}.</div></div>`}
+
+// КАРТА РЕЗУЛЬТАТОВ
+const ASP={color:['Цвет','vis'],form:['Форма','vis'],texture:['Фактура','kin'],sound:['Звук','aud'],body:['Тело, температура','kin'],space:['Пространство','vis'],mood:['Настроение','kin'],name:['Название','kno']};
+const CHN={vis:'Ясновидение',aud:'Яснослышание',kin:'Ясночувствование',kno:'Яснознание'};
+function profileData(){try{const s=localStorage.getItem('occulteria_profile_v1');return s?JSON.parse(s):null}catch(e){return null}}
+function drawMap(restore){const marks={};document.querySelectorAll('#selfbox input').forEach(c=>{marks[c.dataset.a]=c.checked;c.disabled=true});st.marks=marks;save();$('mapbtn').style.display='none';
+  const it=st.items[0],hit=it.pick===it.t;const ch={vis:0,aud:0,kin:0,kno:0},chn={vis:0,aud:0,kin:0,kno:0};
+  Object.keys(ASP).forEach(k=>{chn[ASP[k][1]]++;if(marks[k])ch[ASP[k][1]]++});
+  let ax='';if(st.mode!==10){let h=0,n=0;it.a.forEach((v,k)=>{if(v!==null){n++;if(v===S[it.t].p[k])h++}});ax=n?`<p>Общие признаки на листе: совпало ${h} из ${n}.</p>`:''}
+  const pr=profileData();let prof='';
+  if(pr){const keys=['vis','aud','kin','kno'];const sc=keys.map(k=>{const self=pr.q?pr.q.sc[k]:null;const a=pr[k]||[];const hh=a.reduce((s,r)=>s+r.h,0),nn=a.reduce((s,r)=>s+r.n,0),c=a.length?a[0].c:0;
+      const hs=nn?Math.max(0,Math.min(1,(hh/nn-c)/(1-c)*2.5)):null,ss=self!==null?(self-5)/20:null;const parts=[ss,hs].filter(x=>x!==null);return {k,v:parts.length?parts.reduce((a,b)=>a+b,0)/parts.length:null}});
+    const lead=sc.filter(x=>x.v!==null).sort((a,b)=>b.v-a.v)[0];
+    prof=lead?`<h3 style="font-weight:normal;font-size:13px;letter-spacing:.25em;text-transform:uppercase;color:var(--mid);margin:18px 0 6px">Профиль восприятия (Тренажёр 5)</h3>${sc.map(x=>`<div class="bar${x===lead?' lead':''}"><span>${CHN[x.k]}</span><div class="tr"><span style="width:${x.v===null?0:Math.round(x.v*100)}%"></span></div><span>${x.v===null?'·':Math.round(x.v*100)}</span></div>`).join('')}<p class="note">Ведущий канал по профилю: ${CHN[lead.k]}.</p>`:''}
+  else prof='<p class="note">Данных Тренажёра 5 «Профиль восприятия» в этом браузере нет. Если пройти его здесь же, карта покажет и ваш профиль.</p>';
+  const best=Object.keys(ch).filter(k=>ch[k]>0).sort((a,b)=>ch[b]/chn[b]-ch[a]/chn[a]);
+  $('map').innerHTML=`<div class="sum"><div class="big">Карта результатов</div><div class="note">Выбор при сравнении: ${hit?'попадание, вы выбрали загаданную фотографию':'другая фотография'}. Формат: ${st.mode===10?'с Аудио 10':'с записью'}.</div></div>
+   <div class="mapgrid">${Object.keys(ASP).map(k=>`<div class="${marks[k]?'on':''}"><b>${CHN[ASP[k][1]]}</b>${ASP[k][0]}${marks[k]?' · совпало':''}</div>`).join('')}</div>${ax}
+   <p>${best.length?'В этой сессии лучше всего сработал канал: '+CHN[best[0]]+'.':'В этой сессии совпадений не отмечено. Это обычный результат для одной попытки: карта складывается по нескольким сессиям.'} ${marks.name&&!hit?'Название совпало, а фотографию вы выбрали другую: доверяйте свойствам больше, чем первому названию.':''}${!marks.name&&hit?' Вы попали по свойствам, без названия: это и есть рабочий способ.':''}</p>${prof}
+   <p class="note">Карта отражает одну сессию и вашу собственную отметку совпадений. Сравнивайте её с картами следующих сессий: устойчивые совпадения по одному каналу показывают, с чего начинать профильное обучение.</p>`;
+  if(!restore)try{const h=JSON.parse(localStorage.getItem('occulteria_final_hist')||'[]');h.push({t:Date.now(),hit,marks,mode:st.mode});localStorage.setItem('occulteria_final_hist',JSON.stringify(h))}catch(e){}}
+$('mapbtn').onclick=()=>drawMap(false);
+
+$('again').onclick=()=>{st={stage:1};save();$('map').innerHTML='';$('mapbtn').style.display='';document.querySelectorAll('#selfbox input').forEach(c=>{c.checked=false;c.disabled=false});$('c10').checked=false;$('tojudge10').disabled=true;$('c8').checked=false;$('go').disabled=true;$('c9').checked=false;$('tojudge').disabled=true;$('lock').style.display='';$('after').style.display='none';stage(1)};
+
+load();
+if(st.stage===2&&st.items){stage(2);item()}
+else if(st.stage===10&&st.items){stage(10);$('code10').textContent=st.items[0].code}
+else if(st.stage===3){stage(3);if(st.locked)after()}
+else if(st.stage===4&&st.items){stage(4);judge()}
+else if(st.stage===5&&st.items){stage(5);summary();if(st.marks){document.querySelectorAll('#selfbox input').forEach(c=>c.checked=!!st.marks[c.dataset.a]);drawMap(true)}}
+else stage(1);
+})();
+</script>
+</body>
+</html>
