@@ -80,6 +80,10 @@ canvas.pad{display:block;width:100%;background:#fff;border:1px solid var(--dark)
 
 <section class="stage" id="s1">
   <h2>Подготовка</h2>
+  <div class="box"><span class="l">Режим</span>
+    <label class="check"><input type="radio" name="mode" value="3" checked> Серия из 3 целей с записью, Аудио 8 перед и Аудио 9 после</label>
+    <label class="check"><input type="radio" name="mode" value="10"> Одна цель с Аудио 10: глаза закрыты всю сессию, ничего не записываете, потом выбираете фотографию по памяти</label></div>
+  <div id="m3">
   <p>В серии 3 цели. Это полные сессии, на каждую обычно уходит от пяти до пятнадцати минут. Пишите короткими словами и отделяйте догадки: «похоже на храм» это догадка, «высокое, серое, остроконечное» это свойство. Хорошее свойство можно сравнить с фотографией.</p>
   <div class="box"><span class="l">Аудио 8. Перед сессией</span>Прослушайте его до конца, затем возвращайтесь сюда.<audio controls preload="none" src="audio/a08.mp3"></audio></div>
   <label class="check"><input type="checkbox" id="c8"> Я прослушал(а) Аудио 8: опора стоит, окно открыто</label>
@@ -87,6 +91,17 @@ canvas.pad{display:block;width:100%;background:#fff;border:1px solid var(--dark)
     <div class="slider"><span>Бодрость</span><input type="range" min="0" max="10" value="5" id="sb"><b id="sbv">5</b></div>
     <div class="slider"><span>Спокойствие</span><input type="range" min="0" max="10" value="5" id="ss"><b id="ssv">5</b></div></div>
   <button class="btn" id="go" disabled>Получить цели и начать</button>
+  </div>
+  <div id="m10" style="display:none">
+    <p>Нажмите «Получить цель». Цель будет загадана и спрятана. Затем включите Аудио 10 прямо здесь, отложите телефон и слушайте с закрытыми глазами до конца. Вход и выход уже есть в записи, Аудио 8 и 9 не нужны.</p>
+    <button class="btn" id="go10">Получить цель</button>
+  </div>
+</section>
+<section class="stage" id="s10">
+  <div class="box"><span class="l">Цель загадана</span><div class="code" id="code10"></div><div class="note">Номер запоминать не нужно. Включите аудио и закройте глаза.</div></div>
+  <div class="box"><span class="l">Аудио 10. Слепая сессия под голос проводника</span><audio controls preload="none" src="audio/a10.mp3"></audio></div>
+  <label class="check"><input type="checkbox" id="c10"> Я прослушал(а) Аудио 10 до конца: сессия проведена, выход сделан</label>
+  <button class="btn" id="tojudge10" disabled>Выбрать фотографию</button>
 </section>
 
 <section class="stage" id="s2">
@@ -163,8 +178,8 @@ const N=3,KEY='occulteria_t8_v1';
 let st={stage:1};
 function save(){try{localStorage.setItem(KEY,btoa(unescape(encodeURIComponent(JSON.stringify(st)))))}catch(e){}}
 function load(){try{const s=localStorage.getItem(KEY);if(s)st=JSON.parse(decodeURIComponent(escape(atob(s))))}catch(e){}}
-function stage(n){st.stage=n;save();document.querySelectorAll('.stage').forEach((s,i)=>s.classList.toggle('on',i+1===n));
-  document.querySelectorAll('.steps div').forEach(d=>{const k=+d.dataset.s;d.classList.toggle('on',k===n);d.classList.toggle('done',k<n)});window.scrollTo(0,0)}
+function stage(n){st.stage=n;save();document.querySelectorAll('.stage').forEach(s=>s.classList.toggle('on',s.id==='s'+n));
+  document.querySelectorAll('.steps div').forEach(d=>{const k=+d.dataset.s;const m=n===10?2:n;d.classList.toggle('on',k===m);d.classList.toggle('done',k<m)});window.scrollTo(0,0)}
 const now=()=>new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
 const code=()=>String(1000+rint(9000))+'-'+String(rint(100)).padStart(2,'0');
 const esc=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
@@ -201,16 +216,22 @@ function after(){$('lock').style.display='none';$('after').style.display='block'
 $('c9').onchange=()=>$('tojudge').disabled=!$('c9').checked;
 $('tojudge').onclick=()=>{st.j=0;st.items.forEach(it=>{if(!it.cands){const others=shuffle(S.map((s,i)=>i).filter(i=>i!==it.t)).slice(0,3);it.cands=shuffle([it.t,...others]);it.pick=null}});save();stage(4);judge()};
 
+
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{const t=document.querySelector('input[name=mode]:checked').value==='10';$('m3').style.display=t?'none':'';$('m10').style.display=t?'':'none'});
+$('go10').onclick=()=>{st={stage:10,mode:10,start:now(),items:[{t:rint(S.length),code:code(),a:[null,null,null,null,null,null],props:'',props2:'',sum5:'',guess:'',f:null,e:null}]};save();stage(10);$('code10').textContent=st.items[0].code};
+$('c10').onchange=()=>$('tojudge10').disabled=!$('c10').checked;
+$('tojudge10').onclick=()=>{st.end=now();st.j=0;const it=st.items[0];const others=shuffle(S.map((s,i)=>i).filter(i=>i!==it.t)).slice(0,3);it.cands=shuffle([it.t,...others]);it.pick=null;save();stage(4);judge()};
+
 // 4
-function mineHtml(it){const props=it.a.map((v,k)=>v===null?'':AXT[k]+': '+AXN[k][v]).filter(Boolean).join(', ');
+function mineHtml(it){if(st.mode===10)return '<div class="box note">Вспомните свои впечатления и выберите фотографию по памяти.</div>';const props=it.a.map((v,k)=>v===null?'':AXT[k]+': '+AXN[k][v]).filter(Boolean).join(', ');
   return `${it.e?`<img src="${it.e}" alt="эскиз">`:(it.f?`<img src="${it.f}" alt="касание">`:'<div class="box note">Эскиза нет</div>')}<div class="note" style="margin-top:6px">${props?'Свойства: '+props+'. ':''}${it.props?'Видимое: '+esc(it.props)+'. ':''}${it.props2?'Звук, тело: '+esc(it.props2)+'. ':''}${it.sum5?'Итог: '+esc(it.sum5)+'. ':''}${it.guess?'Догадки: '+esc(it.guess)+'.':''}</div>`}
-function judge(){const it=st.items[st.j];$('jprog').innerHTML=`Цель <b>${st.j+1}</b> из ${N} · номер ${it.code}`;$('mine').innerHTML=mineHtml(it);
+function judge(){const it=st.items[st.j];$('jprog').innerHTML=`Цель <b>${st.j+1}</b> из ${st.items.length} · номер ${it.code}`;$('mine').innerHTML=mineHtml(it);
   const box=$('cands');box.className='cands';box.innerHTML=it.cands.map(k=>`<button data-k="${k}">${img(S[k].k)}</button>`).join('');$('jnext').style.display='none';
   if(it.pick!==null)reveal(it);
   box.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(it.pick!==null)return;it.pick=+b.dataset.k;save();reveal(it)})}
 function reveal(it){const box=$('cands');box.classList.add('lock');box.querySelectorAll('button').forEach(b=>{const k=+b.dataset.k;if(k===it.pick)b.classList.add('pick');if(k===it.t)b.classList.add('right')});
-  $('jprog').innerHTML+=` · загадано: ${S[it.t].n}${it.pick===it.t?', попадание':''}`;$('jnext').style.display='inline-block';$('jnext').textContent=st.j===N-1?'К итогу':'Дальше'}
-$('jnext').onclick=()=>{st.j++;save();if(st.j>=N){stage(5);summary()}else judge()};
+  $('jprog').innerHTML+=` · загадано: ${S[it.t].n}${it.pick===it.t?', попадание':''}`;$('jnext').style.display='inline-block';$('jnext').textContent=st.j===st.items.length-1?'К итогу':'Дальше'}
+$('jnext').onclick=()=>{st.j++;save();if(st.j>=st.items.length){stage(5);summary()}else judge()};
 
 // 5
 function binomTail(k,n,p){let s=0;for(let i=k;i<=n;i++){let c=1;for(let j=0;j<i;j++)c=c*(n-j)/(j+1);s+=c*Math.pow(p,i)*Math.pow(1-p,n-i)}return s}
@@ -218,12 +239,13 @@ function verdict(h,n,p){if(!n)return 'нет ответов';const pv=binomTail(
 function summary(){let hits=0,ph=0,pn=0;
   $('rows').innerHTML=st.items.map((it,i)=>{const t=S[it.t];if(it.pick===it.t)hits++;
     const ms=it.a.map((v,k)=>{if(v===null)return '';pn++;const ok=v===t.p[k];if(ok)ph++;return `<span class="${ok?'ok':'no'}">${AXT[k]}: ${AXN[k][v]}</span>`}).filter(Boolean).join(', ');
-    return `<div class="row"><img class="ph" src="img8/${t.k}.jpg"><div class="m"><b style="font-weight:normal;font-size:18px;color:#161616">${i+1}. ${t.n}</b><br>${it.pick===it.t?'Попадание при сравнении.':'При сравнении выбрано: '+S[it.pick].n.toLowerCase()+'.'}<br>${ms||'Общие признаки не отмечены.'}</div><div class="sk">${it.e?`<img src="${it.e}">`:''}</div></div>`}).join('');
-  $('sum').innerHTML=`<div class="sum"><div class="big">${hits} из ${N} попаданий</div><div class="tag">${verdict(hits,N,.25)}</div><div class="note">Общие признаки: совпало ${ph} из ${pn}. Начало ${st.start}, конец ${st.end}. Состояние перед сессией: бодрость ${st.b}, спокойствие ${st.s}.</div></div>`}
-$('again').onclick=()=>{st={stage:1};save();$('c8').checked=false;$('go').disabled=true;$('c9').checked=false;$('tojudge').disabled=true;$('lock').style.display='';$('after').style.display='none';stage(1)};
+    return `<div class="row"><img class="ph" src="img8/${t.k}.jpg"><div class="m"><b style="font-weight:normal;font-size:18px;color:#161616">${i+1}. ${t.n}</b><br>${it.pick===it.t?'Попадание при сравнении.':'При сравнении выбрано: '+S[it.pick].n.toLowerCase()+'.'}<br>${st.mode===10?'':(ms||'Общие признаки не отмечены.')}</div><div class="sk">${it.e?`<img src="${it.e}">`:''}</div></div>`}).join('');
+  const NN=st.items.length;$('sum').innerHTML=`<div class="sum"><div class="big">${hits} из ${NN} ${st.mode===10?(hits?'попадание':'попаданий'):'попаданий'}</div><div class="tag">${verdict(hits,NN,.25)}</div><div class="note">${st.mode===10?'Сессия с Аудио 10. Случайный выбор из четырёх фотографий даёт попадание в одном случае из четырёх, поэтому судить о канале можно только по нескольким сессиям.':'Общие признаки: совпало '+ph+' из '+pn+'. Состояние перед сессией: бодрость '+st.b+', спокойствие '+st.s+'.'} Начало ${st.start}, конец ${st.end}.</div></div>`}
+$('again').onclick=()=>{st={stage:1};save();$('c10').checked=false;$('tojudge10').disabled=true;$('c8').checked=false;$('go').disabled=true;$('c9').checked=false;$('tojudge').disabled=true;$('lock').style.display='';$('after').style.display='none';stage(1)};
 
 load();
 if(st.stage===2&&st.items){stage(2);item()}
+else if(st.stage===10&&st.items){stage(10);$('code10').textContent=st.items[0].code}
 else if(st.stage===3){stage(3);if(st.locked)after()}
 else if(st.stage===4&&st.items){stage(4);judge()}
 else if(st.stage===5&&st.items){stage(5);summary()}
