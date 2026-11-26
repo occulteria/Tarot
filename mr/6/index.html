@@ -38,6 +38,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 .opt.bad{border-color:var(--bad);box-shadow:inset 4px 0 0 var(--bad)}
 .opt.sel{border-color:var(--bone);box-shadow:inset 4px 0 0 var(--bone)}
 .opt.done{opacity:.55}
+.dz-cards{display:grid;gap:8px;margin:6px 0 10px}.dz-card{aspect-ratio:2/3;min-height:90px;display:flex;align-items:flex-end;justify-content:center;background:repeating-linear-gradient(45deg,#272127 0 8px,#1d191d 8px 16px);border:1px solid var(--bone);border-radius:6px;padding:6px;font-family:var(--disp);font-size:16px;letter-spacing:.06em;color:var(--bone)}
 .verdict{font-family:var(--disp);letter-spacing:.05em;text-transform:uppercase;font-size:15px;margin:4px 0}
 .verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
 .expl{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:8px 0;font-size:16px}
@@ -210,6 +211,69 @@ T.case=function(ti,el,tr){var items=shuf(tr.items).slice(0,tr.max||tr.items.leng
         $('#nx').onclick=function(){log.push('<div class="expl" style="margin:6px 0"><b>'+esc(sp.k||('Шаг '+(s+1)))+'.</b> '+esc(sp.o[sp.a])+'</div>');s++;if(s<it.steps.length)draw();else{k++;one()}}}})}
     draw()}
   one()};
+
+/* Практика с маятником: цель скрыта, ученик ищет инструментом, тренажёр считает попадания */
+function rint(n){try{var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}catch(e){return Math.floor(Math.random()*n)}}
+function tail(n,h,p){var s=0;for(var k=h;k<=n;k++){var c=1;for(var j=0;j<k;j++)c=c*(n-j)/(j+1);s+=c*Math.pow(p,k)*Math.pow(1-p,n-k)}return s}
+function chanceTxt(n,h,p){var e=Math.round(n*p*10)/10,t=tail(n,h,p),r=Math.round(t*100);
+  var how=t<0.05?'Так редко бывает случайно: ваша рука хорошо передаёт сигнал. Закрепляйте результат, повторяя тренажёр в другие дни.':t<0.2?'Результат выше случая, но пока может быть и везением. Повторите тренажёр ещё два-три раза.':'Пока результат в пределах случая. Проверьте состояние, хват и договор знаков, работайте медленнее и повторите в другой день.';
+  return '<p class="small">Чистый случай дал бы в среднем '+String(e).replace('.',',')+' из '+n+'. '+(h>n*p?'Ваш результат или лучше выпадает случайно примерно '+(r<1?'реже одного раза':r+' '+(r%10===1&&r!==11?'раз':'раз'))+' из 100.':'')+'</p><p class="small">'+how+'</p>'}
+T.dowse=function(ti,el,tr){
+  if(!S.hist)S.hist={};var hist=S.hist[ti]||[];
+  var stages=tr.stages||[{opts:tr.opts,ask:tr.ask,place:tr.place}],R=tr.rounds||10,k=0,hits=0,full=0,names=null;
+  var st=frame(ti,el,R,R*stages.length);
+  function optsOf(s){return (s.names&&names)?names:s.opts}
+  function intro(){
+    var h='<div class="panel"><div class="kick">Как работать</div><ol class="small" style="margin:8px 0 0;padding-left:20px">'+tr.steps.map(function(x){return '<li style="margin:4px 0">'+esc(x)+'</li>'}).join('')+'</ol></div>';
+    if(tr.need)h+='<p class="small mute">Понадобится: '+esc(tr.need)+'</p>';
+    if(hist.length)h+='<div class="panel"><h3>Ваши прошлые результаты</h3>'+hist.slice(-6).map(function(x){return '<p class="small" style="margin:4px 0">'+esc(x.d)+': '+x.h+' из '+x.n+'</p>'}).join('')+'</div>';
+    if(stages.some(function(s){return s.names}))h+='<label class="small mute" for="nmz" style="display:block;margin:6px 0">'+esc(tr.namesLabel||'Имена через запятую, от двух до шести')+'</label><input type="text" id="nmz" value="'+esc((S.names&&S.names[ti])||'')+'">';
+    h+='<div class="row" style="margin-top:12px"><button class="main" id="go">Начать</button></div><div id="fb"></div>';
+    $('#body').innerHTML=h;
+    $('#go').onclick=function(){
+      var z=$('#nmz');if(z){var a=z.value.split(',').map(function(x){return x.trim()}).filter(Boolean);if(a.length<2||a.length>6){$('#fb').innerHTML='<p class="verdict bad">Впишите от двух до шести имён через запятую</p>';return}names=a;S.names=S.names||{};S.names[ti]=z.value;save()}
+      one()}}
+  function one(){
+    if(k>=R)return end();st.step(k);
+    var tgt=stages.map(function(s){return rint(tr.funnel?tr.funnel:optsOf(s).length)});
+    if(tr.mode==='helper')return helper(tgt);work(tgt,0,[])}
+  function helper(tgt){
+    $('#body').innerHTML='<div class="panel" style="text-align:center"><div class="kick">Раунд '+(k+1)+' из '+R+'</div><p style="font-size:18px;margin:8px 0">Отдайте телефон помощнику. Вы не смотрите.</p><button class="main" id="hv">Я помощник: показать задание</button></div>';
+    $('#hv').onclick=function(){
+      var t=tr.helper;stages.forEach(function(s,i){t=t.replace('{'+i+'}',optsOf(s)[tgt[i]])});
+      $('#body').innerHTML='<div class="panel"><div class="kick">Только для помощника</div><p style="font-size:20px;margin:8px 0">'+esc(t)+'</p><p class="small mute">'+esc(tr.helperNote||'Сделайте это так, чтобы ученик не видел. Не подсказывайте ни словом, ни взглядом; лучше выйдите из комнаты, пока ученик работает.')+'</p><button class="main" id="hd">Готово, отдаю телефон</button></div>';
+      $('#hd').onclick=function(){work(tgt,0,[])}}}
+  function work(tgt,si,picks){
+    var s=stages[si];
+    if(tr.funnel)return funnel(tgt);
+    var o=optsOf(s),lay=tr.layout||'list',h='<div class="kick">Раунд '+(k+1)+' из '+R+(stages.length>1?' · шаг '+(si+1)+' из '+stages.length:'')+'</div><p class="small" style="margin:6px 0 10px">'+esc(s.ask)+'</p>';
+    if(lay==='cards')h+='<div class="dz-cards" style="grid-template-columns:repeat('+(tr.cols||o.length)+',1fr)">'+o.map(function(x,i){return '<button class="dz-card" data-i="'+i+'"><span>'+esc(x)+'</span></button>'}).join('')+'</div>';
+    else if(lay==='fan')h+=fan(o);
+    else h+=o.map(function(x,i){return '<button class="opt" data-i="'+i+'">'+esc(x)+'</button>'}).join('');
+    h+='<div id="fb"></div>';$('#body').innerHTML=h;
+    el.querySelectorAll('#body [data-i]').forEach(function(b){b.onclick=function(){
+      var p=+b.getAttribute('data-i');picks=picks.concat([p]);
+      if(si+1<stages.length)return work(tgt,si+1,picks);reveal(tgt,picks)}})}
+  function fan(o){var n=o.length,W=320,cx=160,cy=170,r=150,h='<svg viewBox="0 0 320 190" style="width:100%;max-width:420px;display:block;margin:0 auto" role="group" aria-label="Веер вариантов">';
+    for(var i=0;i<n;i++){var a0=Math.PI*(1-i/n),a1=Math.PI*(1-(i+1)/n),x0=cx+r*Math.cos(a0),y0=cy-r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy-r*Math.sin(a1),am=(a0+a1)/2;
+      h+='<g data-i="'+i+'" style="cursor:pointer"><path d="M'+cx+' '+cy+' L'+x0.toFixed(1)+' '+y0.toFixed(1)+' A'+r+' '+r+' 0 0 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+' Z" fill="'+(i%2?'#272127':'#1d191d')+'" stroke="#3d3439"/><text x="'+(cx+(r*0.78)*Math.cos(am)).toFixed(1)+'" y="'+(cy-(r*0.78)*Math.sin(am)+5).toFixed(1)+'" fill="#ede5da" font-size="13" text-anchor="middle" font-family="PT Serif,Georgia,serif">'+esc(o[i])+'</text></g>'}
+    return h+'<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#e2622b"/></svg><p class="small mute" style="text-align:center">Маятник держат над оранжевой точкой, ответ читают по лучу качания.</p>'}
+  function funnel(tgt){var lo=0,hi=tr.funnel-1,n=0;
+    function step(){if(lo===hi)return reveal([tgt[0]],[lo]);var mid=Math.floor((lo+hi)/2);n++;
+      $('#body').innerHTML='<div class="kick">Раунд '+(k+1)+' из '+R+' · вопрос '+n+'</div><p style="font-size:18px;margin:8px 0">«Задуманное число от '+(lo+1)+' до '+(mid+1)+'?»</p><p class="small mute">Осталось чисел: '+(hi-lo+1)+'. Задайте вопрос маятнику и отметьте его ответ.</p><div class="row"><button class="main" id="fy">Маятник: да</button><button id="fn">Маятник: нет</button></div>';
+      $('#fy').onclick=function(){hi=mid;step()};$('#fn').onclick=function(){lo=mid+1;step()}}
+    step()}
+  function reveal(tgt,picks){
+    var ok=0;for(var i=0;i<stages.length;i++){if(picks[i]===tgt[i])ok++;else break}
+    hits+=ok;if(ok===stages.length)full++;st.add(ok);
+    var lines=stages.map(function(s,i){var o=tr.funnel?null:optsOf(s);return o?('<p class="small" style="margin:4px 0">'+(stages.length>1?esc(s.place||'')+': ':'')+'загадано «'+esc(o[tgt[i]])+'», вы выбрали «'+esc(o[picks[i]])+'»</p>'):'<p class="small" style="margin:4px 0">Загадано число '+(tgt[i]+1)+', маятник привёл к числу '+(picks[i]+1)+'</p>'}).join('');
+    $('#body').innerHTML='<div class="panel"><p class="verdict '+(ok===stages.length?'ok':'bad')+'">'+(ok===stages.length?'Попадание':ok?'Частично':'Мимо')+'</p>'+lines+'<p class="small mute">Счёт: '+full+' из '+(k+1)+'</p></div>'+(tr.after?'<p class="small mute">'+esc(tr.after)+'</p>':'')+'<div class="row"><button class="main" id="nx">'+(k+1<R?'Следующий раунд':'Итог')+'</button></div>';
+    $('#nx').onclick=function(){k++;one()}}
+  function end(){
+    var p=tr.funnel?1/tr.funnel:stages.reduce(function(a,s){return a/optsOf(s).length},1);
+    hist.push({d:new Date().toLocaleDateString('ru-RU'),h:full,n:R});S.hist[ti]=hist.slice(-20);save();
+    st.finish('<p class="small">Полных попаданий: '+full+' из '+R+'.</p>'+chanceTxt(R,full,p))}
+  intro()};
 
 /* Главная и итог */
 function home(el){var sc=lessonScore();
